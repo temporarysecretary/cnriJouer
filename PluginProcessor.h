@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_formats/juce_audio_formats.h>
+#include "JouerSampleVoice.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -45,12 +46,14 @@ public:
 
     void loadFile(juce::String path);
     void setADSREnvelope(double attack, double decay, double sustain, double release);
+    void modesUpdate(std::array<bool, 5> modes);
 
 private:
     //==============================================================================
     const int numVoices = 8;
     juce::AudioFormatManager mFormatManager;
     juce::AudioFormatReader* mFormatReader{nullptr};
+
 
     juce::ADSR adsrEnvelope;
     juce::MidiKeyboardState keyboardState;

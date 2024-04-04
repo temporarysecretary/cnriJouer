@@ -30,6 +30,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(&waveformWindow);
     std::cout << "WW added\n";
 
+        addAndMakeVisible(regionOverlay);
+
     addAndMakeVisible(&modeButtons);
     std::cout << "Mode buttons added\n";
 
@@ -47,6 +49,7 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 }
 
 //==============================================================================
+
 
 
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
@@ -67,6 +70,7 @@ void AudioPluginAudioProcessorEditor::resized()
     dynamicsControlsComponent.setBounds(583, 124,dynamicsControlsComponent.getWidth(), dynamicsControlsComponent.getHeight());
 
     waveformWindow.setBounds(44,140,waveformWindow.getWidth(),waveformWindow.getHeight());
+    regionOverlay.setBounds(waveformWindow.getBounds());
     waveformWindow.toFront(false);
 
     windowLabel.setJustificationType(juce::Justification::topLeft);

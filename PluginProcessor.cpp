@@ -14,7 +14,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     mFormatManager.registerBasicFormats();
     for(int i = 0; i < numVoices; i++){
-        synth.addVoice(new juce::SamplerVoice());
+        synth.addVoice(new JouerSampleVoice());
     }
 }
 
@@ -144,6 +144,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
@@ -188,7 +189,8 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
     juce::File file = juce::File(path);
     mFormatReader = mFormatManager.createReaderFor(file);
     juce::BigInteger range;
-    range.setRange(0,128,true);
+    // Offsetting the range by 24 because the bottom 24 notes are reserved for regions
+    range.setRange(24,128,true);
     loadedSample = new juce::SamplerSound("Sample", *mFormatReader, range,
             60, 0.0, 0.0, 60);
 

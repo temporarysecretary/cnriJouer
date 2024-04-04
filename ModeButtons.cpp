@@ -50,7 +50,18 @@ void ModeButtons::initializeButtons(){
                              0.5f, juce::Colours::transparentWhite,
                              juce::Image(), 1.0f, juce::Colours::transparentWhite,
                              juce::Image(), 1.0f, juce::Colours::transparentBlack, 0);
-        buttons[i].
+        buttons[i].addListener(this);
         std::cout << "Button visible?" + std::to_string(buttons[i].isVisible()) + "\n";
     }
+}
+
+void ModeButtons::buttonClicked(juce::Button *b){
+    std::cout << "something";
+
+    std::array<bool, 5> modesNow;
+    for(int i = 0; i < 5; i++){
+        modesNow[i] = buttons[i].isDown();
+    }
+
+    JouerSampleVoice::updateModesState(modesNow);
 }

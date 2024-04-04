@@ -7,11 +7,13 @@
 //
 
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_audio_formats/juce_audio_formats.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "FileHolder.h"
 
 juce::File FileHolder::activeSample = juce::File();
 juce::Label FileHolder::fileLabel;
+juce::AudioFormatManager FileHolder::formatManager;
 
 void FileHolder::setActiveSample(const juce::File& newSample){
     FileHolder::activeSample.operator=(newSample);
@@ -23,6 +25,9 @@ juce::File FileHolder::getActiveSample(){
     std::cout << "Returning " + activeSample.getFileName() + "\n";
     return FileHolder::activeSample;
 }
+
+
+
 
 bool FileHolder::doesSampleExist() {
     if(activeSample == juce::File()) return false;

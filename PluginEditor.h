@@ -5,6 +5,7 @@
 #include "WaveformWindow.h"
 #include "FileHolder.h"
 #include "ModeButtons.h"
+#include "RegionOverlay.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Timer
@@ -26,6 +27,7 @@ private:
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
     DynamicsControlsComponent dynamicsControlsComponent;
+    RegionOverlay regionOverlay;
 
     juce::Label windowLabel;
 
@@ -33,6 +35,8 @@ private:
         keyboardComponent.grabKeyboardFocus();
         stopTimer();
     }
+
+
 
     double width;
     double height;

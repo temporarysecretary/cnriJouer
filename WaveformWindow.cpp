@@ -7,11 +7,10 @@
 #include "FileHolder.h"
 #include <juce_audio_formats/juce_audio_formats.h>
 
-juce::Rectangle<int> waveformWindowBounds(400,200);
 
 WaveformWindow::WaveformWindow(AudioPluginAudioProcessor &p) : thumbnailCache(5),
-                                   thumbnail(512, testingProblem, thumbnailCache),
-                                   processorRef(p){
+                                   thumbnail(512, formatManager, thumbnailCache),
+                                   processorRef(p), waveformWindowBounds(400,200){
     std::cout << "constructing WaveformWindow\n";
     setBounds(waveformWindowBounds);
     setAvailableAudioFormats();
@@ -22,7 +21,7 @@ WaveformWindow::WaveformWindow(AudioPluginAudioProcessor &p) : thumbnailCache(5)
 void WaveformWindow::paint(juce::Graphics &g) {
     std::cout << "we've made it to paint (WW)\n";
 
-    if (thumbnail.getNumChannels() == 0 || !fileLoadedIntoThumbnail)
+    if (thumbnail.isFullyLoaded() == 0)
         paintIfNoFileLoaded (g, waveformWindowBounds);
     else
         paintIfFileLoaded (g, waveformWindowBounds);
@@ -41,7 +40,7 @@ void WaveformWindow::thumbnailChanged(){
 
 void WaveformWindow::setAvailableAudioFormats() {
     std::cout << "we've made it to setAvailable\n";
-    testingProblem.registerBasicFormats();
+    formatManager.registerBasicFormats();
 }
 
 bool WaveformWindow::isInterestedInFileDrag(const juce::StringArray &files) {
@@ -50,7 +49,7 @@ bool WaveformWindow::isInterestedInFileDrag(const juce::StringArray &files) {
     else{
         std::cout << "testing Interest\n";
         juce::File tempFile(files[0]);
-        if(tempFile.existsAsFile() && testingProblem.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())){
+        if(tempFile.existsAsFile() && formatManager.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())){
             return true;
         }
         else return false;
@@ -58,27 +57,27 @@ bool WaveformWindow::isInterestedInFileDrag(const juce::StringArray &files) {
 }
 
 void WaveformWindow::fileDragEnter(const juce::StringArray &files, int x, int y) {
-
+    this->toFront(false);
 }
 
 void WaveformWindow::fileDragExit(const juce::StringArray &files) {
-
+    this->toBack();
 }
 
 void WaveformWindow::filesDropped(const juce::StringArray &files, int x, int y) {
     std::cout << "testing Drop\n";
     juce::File tempFile(files[0]);
-    if(tempFile.existsAsFile() && testingProblem.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())) {
+    if(tempFile.existsAsFile() && formatManager.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())) {
 
         std::cout << "file is valid\n";
         FileHolder::setActiveSample(tempFile);
-        auto* reader = testingProblem.createReaderFor(FileHolder::getActiveSample());
+        auto* reader = formatManager.createReaderFor(FileHolder::getActiveSample());
         if(reader != nullptr){
             std::cout << "sending to thumbnail\n";
             auto newSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
             thumbnail.setSource(new juce::FileInputSource(FileHolder::getActiveSample()));
             processorRef.loadFile(FileHolder::getActiveSample().getFullPathName());
-            fileLoadedIntoThumbnail = true;
+
             readerSource.reset(newSource.release());
         }
     }
@@ -95,11 +94,11 @@ void WaveformWindow::paintIfNoFileLoaded(juce::Graphics &g, const juce::Rectangl
 void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds) {
     std::cout << "Starting file load paintover\n";
 
-    g.setColour(juce::Colours::azure);
+    g.setColour(juce::Colours::white);
     g.fillRect(bounds);
 
     // Draw left stereo channel
-    g.setColour(juce::Colour(0x550099FF));
+    g.setColour(juce::Colour(0x55000000));
     thumbnail.drawChannel(g,
                           bounds,
                           0.0,
@@ -108,7 +107,7 @@ void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<
                           gainOfThumbnail);
 
     // Draw right stereo channel
-    g.setColour(juce::Colour(0x55FF9900));
+    g.setColour(juce::Colour(0x55000000));
     thumbnail.drawChannel(g,
                           bounds,
                           0.0,
@@ -121,14 +120,6 @@ void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<
 void WaveformWindow::sliderValueChanged(juce::Slider *slider) {
     gainOfThumbnail = slider->getValue();
     repaint();
-}
-
-void WaveformWindow::mouseMove(const juce::MouseEvent &event, juce::Graphics &g){
-    paintOverChildren(g, event.getPosition().getX());
-}
-
-void WaveformWindow::paintOverChildren(juce::Graphics &g, int mouseX) {
-    g.drawVerticalLine(mouseX, 0, waveformWindowBounds.getHeight());
 }
 
 WaveformWindow::~WaveformWindow() {

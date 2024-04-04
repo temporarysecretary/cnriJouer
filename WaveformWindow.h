@@ -14,11 +14,12 @@ public juce::Slider::Listener{
 public:
     WaveformWindow(AudioPluginAudioProcessor &p);
     ~WaveformWindow();
+    juce::Rectangle<int> waveformWindowBounds;
 
     // For creating the waveform.
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioThumbnailCache thumbnailCache;
-    juce::AudioFormatManager testingProblem;
+    juce::AudioFormatManager formatManager;
     juce::AudioThumbnail thumbnail;
     float gainOfThumbnail;
 
@@ -27,14 +28,9 @@ public:
     void resized() override;
     void paintIfNoFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds);
     void paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds);
-    void mouseMove(const juce::MouseEvent &event, juce::Graphics &g);
-    void paintOverChildren(juce::Graphics &g, int mouseX);
 
     void changeListenerCallback(juce::ChangeBroadcaster *source) override;
     void thumbnailChanged();
-
-    // Makes sure thumbnail stays loaded
-    bool fileLoadedIntoThumbnail;
 
     // Implemented functions from juce::FileDragAndDropTarget
     bool isInterestedInFileDrag(const juce::StringArray &files) override;

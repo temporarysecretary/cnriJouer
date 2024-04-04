@@ -12,6 +12,7 @@
 class FileHolder {
 private:
     static juce::File activeSample;
+    static juce::AudioFormatManager formatManager;
 public:
     static juce::Label fileLabel;
     static void setActiveSample(const juce::File& newSample);
