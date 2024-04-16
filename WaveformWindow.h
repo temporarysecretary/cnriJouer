@@ -8,6 +8,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
+#include "RegionOverlay.h"
 
 class WaveformWindow : public juce::Component, private juce::ChangeListener, public juce::FileDragAndDropTarget,
 public juce::Slider::Listener{
@@ -46,6 +47,7 @@ public:
     void setAvailableAudioFormats();
 
     AudioPluginAudioProcessor& processorRef;
+    RegionOverlay regionOverlay;
 };
 
 #endif //CNRIJOUER_WAVEFORMWINDOW_H

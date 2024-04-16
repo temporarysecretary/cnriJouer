@@ -13,20 +13,31 @@
 
 juce::File FileHolder::activeSample = juce::File();
 juce::Label FileHolder::fileLabel;
-juce::AudioFormatManager FileHolder::formatManager;
 
 void FileHolder::setActiveSample(const juce::File& newSample){
+    // Set pointer towards file passed in
     FileHolder::activeSample.operator=(newSample);
     std::cout << "File loaded, named " + activeSample.getFileName() + "\n";
+
+    // Grab the file name and apply it to the label
     FileHolder::fileLabel.setText(FileHolder::activeSample.getFileName().toLowerCase(),juce::NotificationType::dontSendNotification);
+
+    // Read the file into memory so that it can be read by JouerAudioSource later
+    juce::AudioFormatManager manager;
+    manager.registerBasicFormats();
+    auto reader = manager.createReaderFor(newSample);
+    int numChannels = reader->numChannels;
+    activeSampleBuffer.setSize(numChannels, reader->lengthInSamples);
+    reader->read(&activeSampleBuffer, 0, reader->lengthInSamples, 0, true, true);
+
+    // Silly debug that'll take the gain of the 5th sample in memory. If it's not 0 then it's probably fine
+    std::cout << activeSampleBuffer.getReadPointer(1)[5];
 }
 
 juce::File FileHolder::getActiveSample(){
     std::cout << "Returning " + activeSample.getFileName() + "\n";
     return FileHolder::activeSample;
 }
-
-
 
 
 bool FileHolder::doesSampleExist() {

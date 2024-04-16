@@ -14,7 +14,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     mFormatManager.registerBasicFormats();
     for(int i = 0; i < numVoices; i++){
-        synth.addVoice(new JouerSampleVoice());
+        synth.addVoice(new juce::SamplerVoice());
     }
 }
 
@@ -146,6 +146,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.clear (i, 0, buffer.getNumSamples());
 
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
 }
 
 void AudioPluginAudioProcessor::setADSREnvelope(double attack, double decay, double sustain, double release) {
@@ -191,7 +192,7 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
     juce::BigInteger range;
     // Offsetting the range by 24 because the bottom 24 notes are reserved for regions
     range.setRange(24,128,true);
-    loadedSample = new juce::SamplerSound("Sample", *mFormatReader, range,
+    loadedSample = new SamplerSoundRegionLocked("Sample", *mFormatReader, range,
             60, 0.0, 0.0, 60);
 
     synth.addSound(loadedSample);

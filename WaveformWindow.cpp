@@ -16,12 +16,16 @@ WaveformWindow::WaveformWindow(AudioPluginAudioProcessor &p) : thumbnailCache(5)
     setAvailableAudioFormats();
     gainOfThumbnail = 1.0f;
     thumbnail.addChangeListener(this);
+    thumbnailCache.loadThumb(thumbnail,0);
+
+    regionOverlay.setBounds(this->getBounds());
+    addChildComponent(regionOverlay);
 }
 
 void WaveformWindow::paint(juce::Graphics &g) {
     std::cout << "we've made it to paint (WW)\n";
 
-    if (thumbnail.isFullyLoaded() == 0)
+    if (!thumbnail.getNumChannels())
         paintIfNoFileLoaded (g, waveformWindowBounds);
     else
         paintIfFileLoaded (g, waveformWindowBounds);
@@ -57,11 +61,9 @@ bool WaveformWindow::isInterestedInFileDrag(const juce::StringArray &files) {
 }
 
 void WaveformWindow::fileDragEnter(const juce::StringArray &files, int x, int y) {
-    this->toFront(false);
 }
 
 void WaveformWindow::fileDragExit(const juce::StringArray &files) {
-    this->toBack();
 }
 
 void WaveformWindow::filesDropped(const juce::StringArray &files, int x, int y) {
@@ -74,6 +76,7 @@ void WaveformWindow::filesDropped(const juce::StringArray &files, int x, int y) 
         auto* reader = formatManager.createReaderFor(FileHolder::getActiveSample());
         if(reader != nullptr){
             std::cout << "sending to thumbnail\n";
+            thumbnailCache.removeThumb(0);
             auto newSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
             thumbnail.setSource(new juce::FileInputSource(FileHolder::getActiveSample()));
             processorRef.loadFile(FileHolder::getActiveSample().getFullPathName());
@@ -89,6 +92,8 @@ void WaveformWindow::paintIfNoFileLoaded(juce::Graphics &g, const juce::Rectangl
     g.fillRect(bounds);
     g.setColour(juce::Colours::mediumvioletred);
     g.drawFittedText("no file!", bounds, juce::Justification::centred, 1);
+
+    if(regionOverlay.isVisible()) regionOverlay.setVisible(false);
 }
 
 void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds) {
@@ -114,6 +119,8 @@ void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<
                           thumbnail.getTotalLength(),
                           1,
                           gainOfThumbnail);
+
+    if(!regionOverlay.isVisible()) regionOverlay.setVisible(true);
 
 }
 

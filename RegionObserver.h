@@ -1,15 +1,16 @@
-//
-// Created by moonseekr on 4/1/2024.
-//
-
-#ifndef CNRIJOUER_REGIONOBSERVER_H
-#define CNRIJOUER_REGIONOBSERVER_H
-
-#endif //CNRIJOUER_REGIONOBSERVER_H
+#pragma once
 
 #include <vector>
-#include "RegionOverlay.h"
-class RegionObserver{
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+#include "RegionMarker.h"
+
+class RegionObserver {
+public:
+    RegionObserver();
+    void add(RegionMarker*);
+    void update();
 private:
-    std::vector<RegionOverlay> regionMarkers;
+    void sort();
+    std::vector<RegionMarker*> regionMarkers;
 };

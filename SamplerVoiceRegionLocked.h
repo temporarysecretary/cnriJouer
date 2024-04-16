@@ -1,0 +1,14 @@
+//
+// Created by moonseekr on 4/15/2024.
+//
+
+#ifndef CNRIJOUER_SAMPLERVOICEREGIONLOCKED_H
+#define CNRIJOUER_SAMPLERVOICEREGIONLOCKED_H
+
+
+class SamplerVoiceRegionLocked {
+
+};
+
+
+#endif //CNRIJOUER_SAMPLERVOICEREGIONLOCKED_H

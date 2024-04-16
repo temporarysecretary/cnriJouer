@@ -56,12 +56,12 @@ void ModeButtons::initializeButtons(){
 }
 
 void ModeButtons::buttonClicked(juce::Button *b){
-    std::cout << "something";
-
-    std::array<bool, 5> modesNow;
-    for(int i = 0; i < 5; i++){
-        modesNow[i] = buttons[i].isDown();
-    }
-
-    JouerSampleVoice::updateModesState(modesNow);
+//    std::cout << "something";
+//
+//    std::array<bool, 5> modesNow;
+//    for(int i = 0; i < 5; i++){
+//        modesNow[i] = buttons[i].isDown();
+//    }
+//
+//    JouerSampleVoice::updateModesState(modesNow);
 }

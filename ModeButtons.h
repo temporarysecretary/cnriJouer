@@ -5,7 +5,6 @@
 #ifndef CNRIJOUER_MODEBUTTONS_H
 #define CNRIJOUER_MODEBUTTONS_H
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "JouerSampleVoice.h"
 
 class ModeButtons: public juce::Component, private juce::Button::Listener {
 

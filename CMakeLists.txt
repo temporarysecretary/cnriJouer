@@ -80,13 +80,14 @@ target_sources(AudioPluginExample
         PluginEditor.cpp
         PluginProcessor.cpp
         DynamicsControlsComponent.cpp
-        JouerSampleVoice.cpp
         WaveformWindow.cpp
         ModeButtons.cpp
         FileHolder.cpp
+        SamplerSoundRegionLocked.cpp
         RegionOverlay.cpp
+        RegionObserver.cpp
         RegionMarker.cpp
-        RegionObserver.cpp)
+)
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use

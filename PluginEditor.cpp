@@ -9,7 +9,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     : AudioProcessorEditor (&p), processorRef (p), keyboardComponent(keyboardState, juce::KeyboardComponentBase::Orientation::horizontalKeyboard),
       waveformWindow(p), dynamicsControlsComponent(p)
     {
-    width = 1000;
+    width = 800;
     height = 500;
     juce::ignoreUnused (processorRef);
 
@@ -29,8 +29,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     addAndMakeVisible(&waveformWindow);
     std::cout << "WW added\n";
-
-        addAndMakeVisible(regionOverlay);
 
     addAndMakeVisible(&modeButtons);
     std::cout << "Mode buttons added\n";
@@ -70,7 +68,6 @@ void AudioPluginAudioProcessorEditor::resized()
     dynamicsControlsComponent.setBounds(583, 124,dynamicsControlsComponent.getWidth(), dynamicsControlsComponent.getHeight());
 
     waveformWindow.setBounds(44,140,waveformWindow.getWidth(),waveformWindow.getHeight());
-    regionOverlay.setBounds(waveformWindow.getBounds());
     waveformWindow.toFront(false);
 
     windowLabel.setJustificationType(juce::Justification::topLeft);

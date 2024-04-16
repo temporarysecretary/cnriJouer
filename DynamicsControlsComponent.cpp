@@ -57,6 +57,7 @@ void DynamicsControlsComponent::paint(juce::Graphics &g) {
 void DynamicsControlsComponent::resized(){
 
     // This loop is supposed to move the Sliders apart...
+    // and it does!
     auto holdingArea = getLocalBounds();
     holdingArea.reduce(0,20);
     const auto widthOfSlider = static_cast<int>(holdingArea.getWidth()/ADSRSliderArray.size());
@@ -67,7 +68,7 @@ void DynamicsControlsComponent::resized(){
 
 void DynamicsControlsComponent::sliderValueChanged(juce::Slider *slider) {
     // Sends message to the audio processor with the new ADSR values
-    // But only if FileHolder contains a valid sample i.e. its not a nullptr..
+    // But only if FileHolder contains a valid sample i.e. it's not a nullptr...
     // Otherwise, this shit WILL explode
 
     if(FileHolder::doesSampleExist()){

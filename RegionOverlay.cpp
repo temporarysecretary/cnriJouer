@@ -18,26 +18,34 @@ void RegionOverlay::resized(){
 
 void RegionOverlay::paint(juce::Graphics &g) {
     g.setColour(juce::Colour(0xFFb6b9ff));
-    if(FileHolder::doesSampleExist()){
-        paintOnMouseClick(g);
+    if(this -> isVisible()){
         paintOnMouseMove(g);
     }
 }
 
 void RegionOverlay::mouseMove(const juce::MouseEvent &event){
-    mousePosition = event.getPosition();
-    this->setVisible(true);
-    this->repaint();
+    if(this->isVisible()){
+        mousePosition = event.getPosition();
+        this->repaint();
+    }
 }
 
 void RegionOverlay::mouseExit(const juce::MouseEvent &event){
-    this->toBack();
-    this->setVisible(false);
+
 }
 
 void RegionOverlay::paintOnMouseMove(juce::Graphics &g){
+    // Draws a nice little cursor over the overlay
     g.drawVerticalLine(mousePosition.getX(), 0, 400);
 }
 
-void RegionOverlay::paintOnMouseClick(juce::Graphics &g){
+void RegionOverlay::mouseDown(const juce::MouseEvent &event){
+    // Instantiates a new RegionMarker when clicked.
+    if(event.mods.isLeftButtonDown()){
+
+        auto newMarker = (new RegionMarker(event.getMouseDownX(),this->getWidth()));
+        newMarker->attach(regionObserver);
+        this->addAndMakeVisible(newMarker);
+        newMarker->setBounds(event.getMouseDownX(), 0, 5, this->getHeight());
+    }
 }
