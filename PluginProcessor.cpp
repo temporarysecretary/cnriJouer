@@ -192,8 +192,8 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
     juce::BigInteger range;
     // Offsetting the range by 24 because the bottom 24 notes are reserved for regions
     range.setRange(24,128,true);
-    loadedSample = new SamplerSoundRegionLocked("Sample", *mFormatReader, range,
-            60, 0.0, 0.0, 60);
+    loadedSample = new JouerSound("Sample", *mFormatReader, range,
+                                  60, 0.0, 0.0, 60);
 
     synth.addSound(loadedSample);
 

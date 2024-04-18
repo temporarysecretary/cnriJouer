@@ -83,7 +83,8 @@ target_sources(AudioPluginExample
         WaveformWindow.cpp
         ModeButtons.cpp
         FileHolder.cpp
-        SamplerSoundRegionLocked.cpp
+        JouerSound.cpp
+        JouerVoice.cpp
         RegionOverlay.cpp
         RegionObserver.cpp
         RegionMarker.cpp

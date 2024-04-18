@@ -19,6 +19,7 @@ private:
     // Overrides Component class
     void paint(juce::Graphics &g);
     void resized();
+
     void buttonClicked(juce::Button *) override;
 
 public:

@@ -10,7 +10,8 @@ public:
     RegionObserver();
     void add(RegionMarker*);
     void update();
+    static RegionMarker* getRegionMarker(int index);
 private:
     void sort();
-    std::vector<RegionMarker*> regionMarkers;
+    static std::vector<RegionMarker*> regionMarkers;
 };
