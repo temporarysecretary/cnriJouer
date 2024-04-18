@@ -14,7 +14,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     mFormatManager.registerBasicFormats();
     for(int i = 0; i < numVoices; i++){
-        synth.addVoice(new juce::SamplerVoice());
+        synth.addVoice(new JouerVoice());
     }
 }
 
@@ -152,9 +152,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 void AudioPluginAudioProcessor::setADSREnvelope(double attack, double decay, double sustain, double release) {
     // Be VERY CAREFUL not to call this function before loadedSample actually contains any information!
     // It WILL cause an access violation!!!
-    loadedSample->setEnvelopeParameters(
-            juce::ADSR::Parameters(attack,decay,sustain,release)
-            );
+    adsrEnvelope.setParameters(juce::ADSR::Parameters(attack,decay,sustain,release));
+    adsrEnvelope.setSampleRate(getSampleRate());
+    loadedSample->passEnvelope(adsrEnvelope);
 }
 
 //==============================================================================
@@ -187,6 +187,7 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 void AudioPluginAudioProcessor::loadFile(juce::String path){
+    synth.clearSounds();
     juce::File file = juce::File(path);
     mFormatReader = mFormatManager.createReaderFor(file);
     juce::BigInteger range;

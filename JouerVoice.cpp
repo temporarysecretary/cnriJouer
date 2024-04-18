@@ -3,55 +3,61 @@
 //
 
 #include "JouerVoice.h"
+
+void debugFunction(float currSample, float counter, int startSample, int numSamples){
+    std::cout << "Value: ";
+    std::cout << currSample;
+    std::cout << " ";
+    std::cout << "counter: ";
+    std::cout << counter;
+    std::cout << " ";
+    std::cout << "startSample: ";
+    std::cout << startSample;
+    std::cout << " ";
+    std::cout << "Endpoint: ";
+    std::cout << numSamples;
+    std::cout << " ";
+    std::cout << "\n";
+}
+
 void JouerVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     if(auto* playingSound = static_cast<JouerSound*> (getCurrentlyPlayingSound().get())){
-        auto data = *playingSound->getAudioData();
-        auto lengthOfSound = data.getNumSamples();
-        float counter = 0;
-        auto currADSR = adsr.getNextSample();
 
-        // If we're currently tailing off because the note has been stopped and tailoff requested
-        if(tailoff > 0.0){
-            while(--numSamples >= 0 && currADSR > 0.0 && (int) counter < lengthOfSound){
-                for(int i = 0; i < outputBuffer.getNumChannels(); i++){
-                    auto currSample = data.getSample(i, (int) counter);
+        auto help =  *playingSound->getAudioData();
 
-                    if(ModeButtons::buttons[0].isDown()){
-                        currSample *= 2;
-                        if(currSample > 1){ currSample = 1; }
-                        else if (currSample <= -1) {currSample = -1;}
-                    }
+        auto inL = help.getReadPointer(0);
+        auto inR = help.getReadPointer(1);
+        auto outL = outputBuffer.getWritePointer(0);
+        auto outR = outputBuffer.getWritePointer(1);
 
-                    outputBuffer.addSample(i, startSample,
-                                           currSample * level);
-                }
+        while(numSamples-- >= 0){
+            auto adsrGain = adsr.getNextSample();
+            auto L = inL[(int) where];
+            auto R = inR[(int) where];
 
-                counter += (1 * pitchRatio);
-                startSample++;
+            if(mode1){
+                int stagger = (int) where - ((int) where % 24)/2;
+                L = inL[stagger];
+                R = inR[stagger];
             }
-            adsr.reset();
-            tailoff = 0;
-        }
 
-        else{
-            while(numSamples-- >=0 && (int) counter < lengthOfSound){
-                for(int i = 0; i < outputBuffer.getNumChannels(); i++){
-                    auto currSample = data.getSample(i, (int) counter);
-
-                    if(ModeButtons::buttons[0].isDown()){
-                        currSample *= 2;
-                        if(currSample > 1){ currSample = 1; }
-                        else if (currSample <= -1) {currSample = -1;}
-                    }
-
-                    outputBuffer.addSample(i, startSample,
-                                           currSample * level * currADSR);
-                }
-                counter += (1 * pitchRatio);
-                startSample++;
+            if(mode2){
+                L = clip(L * 5);
+                R = clip(R * 5);
             }
-            stopNote(0, false);
+
+            outL[startSample] += L * level * adsrGain;
+            outR[startSample] += R * level * adsrGain;
+
+            startSample++;
+            where+=pitchRatio;
+
+            if(where > help.getNumSamples() || !adsr.isActive())
+            {
+                stopNote(0, false);
+                break;
+            }
         }
     }
 }
@@ -66,20 +72,33 @@ void JouerVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     // Likewise, we will be moving at half a sample per loop at midi note 57
     // I could define a root note variable. I might do that later
 
-    pitchRatio = (float) pow(2,(midiNoteNumber-69)/12);
-    level = velocity * 0.15;
-    tailoff = 0.0;
-    adsr.noteOn();
+    if(dynamic_cast<JouerSound*>(sound) != nullptr){
+        std::cout<<"on";
+        std::cout<<"\n";
+        where = 0;
+        pitchRatio = (float) pow(2,(midiNoteNumber-60)/12.0);
+        level = velocity;
+
+        mode1 = ModeButtons::buttons[0].getToggleState();
+        mode2 = ModeButtons::buttons[1].getToggleState();
+
+        adsr = dynamic_cast<JouerSound*>(sound)->returnADSR();
+        adsr.noteOn();
+    }
+
 }
 
 void JouerVoice::stopNote(float velocity, bool allowTailOff) {
     if(allowTailOff) {
+        std::cout<<"off: release";
+        std::cout<<"\n";
         adsr.noteOff();
-        tailoff = 1.0;
     }
     else {
-        tailoff = 0.0;
+        std::cout<<"off: cut";
+        std::cout<<"\n";
         adsr.reset();
+        clearCurrentNote();
     };
 }
 
@@ -87,12 +106,16 @@ bool JouerVoice::canPlaySound(juce::SynthesiserSound *sound) {
     return dynamic_cast<JouerSound*>(sound) != nullptr;
 }
 
-void JouerVoice::setADSRParams(juce::ADSR::Parameters params) {
-    adsr.setParameters(params);
-    adsr.reset();
+void JouerVoice::controllerMoved(int controllerNumber, int newControllerValue) {
+
 }
 
-void JouerVoice::setSampleRate(int newSampleRate) {
-    sampleRate = newSampleRate;
-    adsr.setSampleRate(sampleRate);
+void JouerVoice::pitchWheelMoved(int newPitchWheelValue) {
+
+}
+
+float JouerVoice::clip(float value) {
+    if (value >= 1) return 0.125 + ((rand() % 100 - 50)/10000);
+    else if (value <= -1) return -0.125 + ((rand() % 100 - 50)/10000);
+    else return value + ((rand() % 100 - 50)/10000);
 }

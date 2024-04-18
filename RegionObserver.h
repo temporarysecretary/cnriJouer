@@ -13,5 +13,5 @@ public:
     static RegionMarker* getRegionMarker(int index);
 private:
     void sort();
-    static std::vector<RegionMarker*> regionMarkers;
+    static inline std::vector<RegionMarker*> regionMarkers;
 };

@@ -12,20 +12,26 @@ class JouerVoice: public juce::SynthesiserVoice {
 public:
     JouerVoice() = default;
     ~JouerVoice() override = default;
+
+    // Implementing functions from SynthesiserVoice
     void renderNextBlock (juce::AudioBuffer<float> &, int startSample, int numSamples) override;
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
-    void setADSRParams(juce::ADSR::Parameters);
     bool canPlaySound(juce::SynthesiserSound* ) override;
-    void setSampleRate(int newSampleRate);
+    void pitchWheelMoved(int newPitchWheelValue) override;
+    void controllerMoved(int controllerNumber, int newControllerValue) override;
+
+    // My functions
+    float clip(float value);
 
 private:
+    bool mode1 = false;
+    bool mode2 = false;
     juce::ADSR adsr;
-    float pitchRatio;
-    float level;
-    float tailoff;
-    int sampleRate;
-
+    float where = 0;
+    float pitchRatio = 1;
+    float level = 0.15;
+    double sampleRate = 44100;
 };
 
 

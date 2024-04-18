@@ -23,7 +23,6 @@ DynamicsControlsComponent::DynamicsControlsComponent(AudioPluginAudioProcessor& 
         // which there are four.
         std::cout << "slider created!";
         s.setSliderStyle(juce::Slider::SliderStyle::LinearBarVertical);
-        s.setRange(0,2000,0.1);
         s.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(0xff0099ff));
         s.addListener(this);
         addAndMakeVisible(&s);
@@ -43,7 +42,7 @@ DynamicsControlsComponent::DynamicsControlsComponent(AudioPluginAudioProcessor& 
         }
         else{
             ADSRSliderArray[i].setRange(0.01,2,0.01);
-            ADSRSliderArray[i].setValue(0.0, juce::dontSendNotification);
+            ADSRSliderArray[i].setValue(0.01, juce::dontSendNotification);
         }
     }
 }
@@ -72,6 +71,8 @@ void DynamicsControlsComponent::sliderValueChanged(juce::Slider *slider) {
     // Otherwise, this shit WILL explode
 
     if(FileHolder::doesSampleExist()){
+        std::cout<<"Value tweaked";
+
         processorRef.setADSREnvelope(
                 ADSRSliderArray[0].getValue(),
                 ADSRSliderArray[1].getValue(),

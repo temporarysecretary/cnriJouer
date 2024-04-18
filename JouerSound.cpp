@@ -26,3 +26,11 @@ bool JouerSound::appliesToRegion(int testRegion) {
     if(testRegion == region) return true;
     else return false;
 }
+
+void JouerSound::passEnvelope(juce::ADSR ad) {
+    adsr = ad;
+}
+
+juce::ADSR JouerSound::returnADSR() {
+    return juce::ADSR(adsr);
+}

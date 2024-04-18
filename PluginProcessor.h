@@ -4,6 +4,7 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include "FileHolder.h"
 #include "JouerSound.h"
+#include "JouerVoice.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -59,6 +60,6 @@ private:
     juce::ADSR adsrEnvelope;
     juce::MidiKeyboardState keyboardState;
     juce::Synthesiser synth;
-    juce::SamplerSound* loadedSample{nullptr};
+    JouerSound* loadedSample{nullptr};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
