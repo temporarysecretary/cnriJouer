@@ -49,13 +49,23 @@ public:
     void loadFile(juce::String path);
     void setADSREnvelope(double attack, double decay, double sustain, double release);
     void modesUpdate(std::array<bool, 5> modes);
+    juce::AudioFormatReader* mFormatReader{nullptr};
 
 private:
     //==============================================================================
     const int numVoices = 8;
     juce::AudioFormatManager mFormatManager;
-    juce::AudioFormatReader* mFormatReader{nullptr};
 
+    juce::AudioProcessorValueTreeState apvts;
+    juce::AudioProcessorValueTreeState::ParameterLayout initParams();
+
+    juce::AudioParameterFloat* attack;
+    juce::AudioParameterFloat* decay;
+    juce::AudioParameterFloat* sustain;
+    juce::AudioParameterFloat* release;
+
+    juce::AudioParameterBool* mode1;
+    juce::AudioParameterBool* mode2;
 
     juce::ADSR adsrEnvelope;
     juce::MidiKeyboardState keyboardState;

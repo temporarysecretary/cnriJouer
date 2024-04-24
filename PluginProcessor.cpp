@@ -10,7 +10,9 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+       apvts(*this, nullptr, juce::Identifier("jouerAPVTS"),
+             initParams())
 {
     mFormatManager.registerBasicFormats();
     for(int i = 0; i < numVoices; i++){
@@ -20,6 +22,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
+
+
 }
 
 //==============================================================================
@@ -152,6 +156,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 void AudioPluginAudioProcessor::setADSREnvelope(double attack, double decay, double sustain, double release) {
     // Be VERY CAREFUL not to call this function before loadedSample actually contains any information!
     // It WILL cause an access violation!!!
+
+
+
     adsrEnvelope.setParameters(juce::ADSR::Parameters(attack,decay,sustain,release));
     adsrEnvelope.setSampleRate(getSampleRate());
     loadedSample->passEnvelope(adsrEnvelope);
@@ -191,8 +198,7 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
     juce::File file = juce::File(path);
     mFormatReader = mFormatManager.createReaderFor(file);
     juce::BigInteger range;
-    // Offsetting the range by 24 because the bottom 24 notes are reserved for regions
-    range.setRange(24,128,true);
+    range.setRange(0,128,true);
     loadedSample = new JouerSound("Sample", *mFormatReader, range,
                                   60, 0.0, 0.0, 60);
 
@@ -205,4 +211,22 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AudioPluginAudioProcessor();
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::initParams(){
+    // Vector/Array list of Parameters that we neeeeeeeeeeeeeeed
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+
+    // Can't do this cleanly. We're making these one at a time.
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>
+                                 ("ATTACK", "Attack", 0.0f, 2.0f, 0.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>
+                                 ("DECAY", "Decay", 0.0f, 2.0f, 0.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>
+                                 ("SUSTAIN", "Sustain", 0.0f, 1.0f, 1.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>
+                                 ("RELEASE", "release", 0.0f, 2.0f, 0.0f));
+
+    // Return from beginning to end
+    return{parameters.begin(), parameters.end()};
 }

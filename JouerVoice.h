@@ -7,6 +7,7 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include "JouerSound.h"
 #include "ModeButtons.h"
+#include "RegionMarker.h"
 
 class JouerVoice: public juce::SynthesiserVoice {
 public:
@@ -28,7 +29,13 @@ private:
     bool mode1 = false;
     bool mode2 = false;
     juce::ADSR adsr;
-    float where = 0;
+
+    static inline int activeRegion;
+
+    float start = 0;
+    float end = 0;
+    float mover = 0;
+
     float pitchRatio = 1;
     float level = 0.15;
     double sampleRate = 44100;

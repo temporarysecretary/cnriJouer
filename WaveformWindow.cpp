@@ -11,20 +11,27 @@
 WaveformWindow::WaveformWindow(AudioPluginAudioProcessor &p) : thumbnailCache(5),
                                    thumbnail(512, formatManager, thumbnailCache),
                                    processorRef(p), waveformWindowBounds(400,200){
-    std::cout << "constructing WaveformWindow\n";
+    // Debug so we know where we are in the process of loading in
+    //    std::cout << "constructing WaveformWindow\n";
+
+    // Set bounds
     setBounds(waveformWindowBounds);
+    // Set our formatManager's formats
     setAvailableAudioFormats();
+
+    // Initialize properties of our audioThumbnail
     gainOfThumbnail = 1.0f;
     thumbnail.addChangeListener(this);
     thumbnailCache.loadThumb(thumbnail,0);
 
+    // Initialize properties of the regionOverlay
     regionOverlay.setBounds(this->getBounds());
     addChildComponent(regionOverlay);
 }
 
 void WaveformWindow::paint(juce::Graphics &g) {
-    std::cout << "we've made it to paint (WW)\n";
-
+//    std::cout << "we've made it to paint (WW)\n";
+    // If there are no channels in our thumbnail, there must not be any audio, and no file
     if (!thumbnail.getNumChannels())
         paintIfNoFileLoaded (g, waveformWindowBounds);
     else
@@ -35,23 +42,24 @@ void WaveformWindow::resized() {
 }
 
 void WaveformWindow::changeListenerCallback(juce::ChangeBroadcaster *source) {
-    if(source == &thumbnail) thumbnailChanged();
-}
-
-void WaveformWindow::thumbnailChanged(){
-    this->repaint();
+    // If our thumbnail has changed for some reason, we should repaint this component
+    if(source == &thumbnail) repaint();
 }
 
 void WaveformWindow::setAvailableAudioFormats() {
-    std::cout << "we've made it to setAvailable\n";
+//    std::cout << "we've made it to setAvailable\n";
     formatManager.registerBasicFormats();
 }
 
 bool WaveformWindow::isInterestedInFileDrag(const juce::StringArray &files) {
-    std::cout << "we've made it to Interest\n";
+//    std::cout << "we've made it to Interest\n";
+
+    // You can only load one sample in at a time! Reject the files if there's more than one.
     if(files.size() > 1) return false;
     else{
-        std::cout << "testing Interest\n";
+//        std::cout << "testing Interest\n";
+
+        // If this file is one of our valid formats, we're interested in it.
         juce::File tempFile(files[0]);
         if(tempFile.existsAsFile() && formatManager.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())){
             return true;
@@ -67,21 +75,33 @@ void WaveformWindow::fileDragExit(const juce::StringArray &files) {
 }
 
 void WaveformWindow::filesDropped(const juce::StringArray &files, int x, int y) {
-    std::cout << "testing Drop\n";
+//    std::cout << "testing Drop\n";
     juce::File tempFile(files[0]);
-    if(tempFile.existsAsFile() && formatManager.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())) {
 
-        std::cout << "file is valid\n";
+    // If this file exists, and it's valid, we'll load it into memory.
+    if(tempFile.existsAsFile() && formatManager.getWildcardForAllFormats().contains("*" + tempFile.getFileExtension())) {
+//        std::cout << "file is valid\n";
+        // Load the file itself and its path into memory.
         FileHolder::setActiveSample(tempFile);
+        FileHolder::setPath(files[0]);
+
+        // Prepare a temporary reader for our file.
         auto* reader = formatManager.createReaderFor(FileHolder::getActiveSample());
+
+        // If it exists:
         if(reader != nullptr){
-            std::cout << "sending to thumbnail\n";
+//            std::cout << "sending to thumbnail\n";
             thumbnailCache.removeThumb(0);
-            auto newSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
+
+
+//            auto newSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
             thumbnail.setSource(new juce::FileInputSource(FileHolder::getActiveSample()));
             processorRef.loadFile(FileHolder::getActiveSample().getFullPathName());
 
-            readerSource.reset(newSource.release());
+            RegionMarker::setTotalSampleLength(reader->lengthInSamples);
+            regionOverlay.initFirstRegionMarker();
+
+//            readerSource.reset(newSource.release());
         }
     }
 
@@ -97,7 +117,7 @@ void WaveformWindow::paintIfNoFileLoaded(juce::Graphics &g, const juce::Rectangl
 }
 
 void WaveformWindow::paintIfFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds) {
-    std::cout << "Starting file load paintover\n";
+//    std::cout << "Starting file load paintover\n";
 
     g.setColour(juce::Colours::white);
     g.fillRect(bounds);

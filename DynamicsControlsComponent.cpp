@@ -54,7 +54,6 @@ void DynamicsControlsComponent::paint(juce::Graphics &g) {
 }
 
 void DynamicsControlsComponent::resized(){
-
     // This loop is supposed to move the Sliders apart...
     // and it does!
     auto holdingArea = getLocalBounds();
@@ -71,7 +70,7 @@ void DynamicsControlsComponent::sliderValueChanged(juce::Slider *slider) {
     // Otherwise, this shit WILL explode
 
     if(FileHolder::doesSampleExist()){
-        std::cout<<"Value tweaked";
+//        std::cout<<"Value tweaked";
 
         processorRef.setADSREnvelope(
                 ADSRSliderArray[0].getValue(),

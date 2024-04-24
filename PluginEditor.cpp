@@ -21,7 +21,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(&windowLabel);
     windowLabel.setFont(juce::Font("Century Gothic", 64, juce::Font::FontStyleFlags::plain));
     windowLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
-    windowLabel.setText("jouer", juce::dontSendNotification);
+    windowLabel.setText("watch revue starlight bitch", juce::dontSendNotification);
     windowLabel.setJustificationType(juce::Justification::topLeft);
 
     addAndMakeVisible(&dynamicsControlsComponent);

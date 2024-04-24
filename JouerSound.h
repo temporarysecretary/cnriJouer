@@ -7,7 +7,7 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include "FileHolder.h"
-#include "RegionObserver.h"
+#include "RegionMarker.h"
 
 class JouerSound: public juce::SamplerSound {
 public:
@@ -18,6 +18,7 @@ public:
     void setRegion(int newRegion);
     bool appliesToRegion(int testRegion);
     int getRegionLoopProp();
+    int getStartSample();
     juce::ADSR returnADSR();
 
 private:

@@ -14,14 +14,6 @@ JouerSound::~JouerSound(){
 
 }
 
-void JouerSound::setRegion(int newRegion){
-    region = newRegion;
-}
-
-int JouerSound::getRegionLoopProp() {
-    return RegionObserver::getRegionMarker(region)->getState();
-}
-
 bool JouerSound::appliesToRegion(int testRegion) {
     if(testRegion == region) return true;
     else return false;

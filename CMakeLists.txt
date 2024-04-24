@@ -86,7 +86,6 @@ target_sources(AudioPluginExample
         JouerSound.cpp
         JouerVoice.cpp
         RegionOverlay.cpp
-        RegionObserver.cpp
         RegionMarker.cpp
 )
 

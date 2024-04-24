@@ -14,10 +14,13 @@ private:
     static juce::File activeSample;
     forcedinline static juce::AudioBuffer<float> activeSampleBuffer;
 public:
+    forcedinline static juce::String path;
     static juce::Label fileLabel;
     static void setActiveSample(const juce::File& newSample);
     static juce::File getActiveSample();
     static bool doesSampleExist();
+
+    static void setPath(const juce::String &string);
 };
 
 

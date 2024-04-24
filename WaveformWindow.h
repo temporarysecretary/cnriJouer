@@ -9,6 +9,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
 #include "RegionOverlay.h"
+#include "RegionMarker.h"
 
 class WaveformWindow : public juce::Component, private juce::ChangeListener, public juce::FileDragAndDropTarget,
 public juce::Slider::Listener{

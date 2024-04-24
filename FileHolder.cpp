@@ -22,7 +22,7 @@ void FileHolder::setActiveSample(const juce::File& newSample){
     // Grab the file name and apply it to the label
     FileHolder::fileLabel.setText(FileHolder::activeSample.getFileName().toLowerCase(),juce::NotificationType::dontSendNotification);
 
-    // Read the file into memory so that it can be read by JouerAudioSource later
+    // Read the file into memory so that it can be read later
     juce::AudioFormatManager manager;
     manager.registerBasicFormats();
     auto reader = manager.createReaderFor(newSample);
@@ -30,12 +30,14 @@ void FileHolder::setActiveSample(const juce::File& newSample){
     activeSampleBuffer.setSize(numChannels, reader->lengthInSamples);
     reader->read(&activeSampleBuffer, 0, reader->lengthInSamples, 0, true, true);
 
-    // Silly debug that'll take the gain of the 5th sample in memory. If it's not 0 then it's probably fine
-    std::cout << activeSampleBuffer.getReadPointer(1)[5];
+    // Silly debug that'll take the gain of the 5th sample in memory. If it's not 0 then it's probably fine.
+    // It could stilll be zero though, so that's stupid.
+//    std::cout << activeSampleBuffer.getReadPointer(1)[5];
 }
 
 juce::File FileHolder::getActiveSample(){
-    std::cout << "Returning " + activeSample.getFileName() + "\n";
+    // Returns the file loaded into memory.
+//    std::cout << "Returning " + activeSample.getFileName() + "\n";
     return FileHolder::activeSample;
 }
 
@@ -43,4 +45,8 @@ juce::File FileHolder::getActiveSample(){
 bool FileHolder::doesSampleExist() {
     if(activeSample == juce::File()) return false;
     else return true;
+}
+
+void FileHolder::setPath(const juce::String &string) {
+    path = string;
 }

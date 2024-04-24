@@ -17,11 +17,13 @@ public:
     DynamicsControlsComponent(AudioPluginAudioProcessor&);
     ~DynamicsControlsComponent();
 
-    private:
+private:
     static const int SLIDER_COUNT = 4;
     std::array<juce::Slider,SLIDER_COUNT> ADSRSliderArray;
     std::array<juce::Label,SLIDER_COUNT> ADSRLabelArray;
+
     AudioPluginAudioProcessor& processorRef;
+
     void paint(juce::Graphics &g) override;
     void resized() override;
     void sliderValueChanged(juce::Slider *slider) override;

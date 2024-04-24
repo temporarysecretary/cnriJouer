@@ -6,6 +6,23 @@
 
 RegionOverlay::RegionOverlay(): regionOverlayBounds(400,200) {
     this->setBounds(regionOverlayBounds);
+
+}
+
+void RegionOverlay::initFirstRegionMarker() {
+    regionObserver->clear();
+
+    // Creates start position marker
+    auto newMarker = (new RegionMarker(0,this->getWidth(), RegionMarker::START));
+    newMarker->attach(regionObserver);
+    regionObserver->add(newMarker);
+    this->addAndMakeVisible(newMarker);
+    newMarker->setBounds(0, 0, 5, this->getHeight());
+
+    std::cout<<newMarker->getStartSample();
+    std::cout<< " ";
+    std::cout<<newMarker->getEndSample();
+    std::cout<<"\n";
 }
 
 RegionOverlay::~RegionOverlay(){
@@ -45,7 +62,13 @@ void RegionOverlay::mouseDown(const juce::MouseEvent &event){
 
         auto newMarker = (new RegionMarker(event.getMouseDownX(),this->getWidth()));
         newMarker->attach(regionObserver);
+        regionObserver->add(newMarker);
         this->addAndMakeVisible(newMarker);
         newMarker->setBounds(event.getMouseDownX(), 0, 5, this->getHeight());
+
+        std::cout<<newMarker->getStartSample();
+        std::cout<< " ";
+        std::cout<<newMarker->getEndSample();
+        std::cout<<"\n";
     }
 }

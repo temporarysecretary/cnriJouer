@@ -14,30 +14,64 @@ class RegionObserver;
 class RegionMarker: public juce::Component {
 public:
     RegionMarker(int xPos, int full);
+
+    RegionMarker(int xPos, int full, int flag);
+
     ~RegionMarker();
     RegionMarker();
     void attach(RegionObserver *newObserver);
     void change();
     void mouseDown(const juce::MouseEvent &) override;
-    int getState() const;
 
-    int startSample;
-    int endSample;
+    int getLoopState();
+    int getStartEndFlag();
+
+    int getStartSample();
+    void setStartSample(int newStart);
+    int getEndSample();
+    void setEndSample(int newEnd);
+    static void setTotalSampleLength(int newLength);
+    int getRegion();
+    void setRegion(int newRegion);
+
     juce::Colour color;
+    int region;
 
-    const int LOOP_DISABLED = 0;
-    const int LOOP_FORWARDS = 1;
-    const int LOOP_BACKWARDS = 2;
-    const int LOOP_PINGPONG = 3;
+    static const int LOOP_DISABLED = 0;
+    static const int LOOP_FORWARDS = 1;
+    static const int LOOP_BACKWARDS = 2;
+    static const int LOOP_PINGPONG = 3;
+
+    static const int START = 0;
+    static const int END = 1;
+    static const int NEITHER = 2;
 
 private:
     RegionObserver *observer;
-    int state;
+    int loopState;
+    int startEndFlag;
 
+    static inline int totalSampleLength = 0;
+    int startSample = 0;
+    int endSample = totalSampleLength;
     void paint(juce::Graphics &g);
 
     void mouseEnter(const juce::MouseEvent &e);
 };
 
+class RegionObserver {
+public:
+    RegionObserver();
+    void add(RegionMarker*);
+    void update();
+    void clear();
+    void remove(RegionMarker*);
+    static RegionMarker* getRegionMarker(int index);
+    static int getSize();
+private:
+    static inline int size;
+    static void sort();
+    static inline std::vector<RegionMarker*> regionMarkers;
+};
 
 #endif //CNRIJOUER_REGIONMARKER_H
