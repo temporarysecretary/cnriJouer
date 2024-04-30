@@ -298,7 +298,7 @@ void AudioPluginAudioProcessor::loadXML(){
                               auto fileLoaded = fc.getResult();
                               auto XML = juce::parseXML(fileLoaded);
                               std::cout<<XML->toString();
-                              FileHolder::setPath(XML->getChildByName("PATH")->getAttributeValue(0));
+                              std::cout<<XML->getChildByName("PATH")->getAttributeValue(0);
                           }
     );
 
