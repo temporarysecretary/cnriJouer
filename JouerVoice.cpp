@@ -98,7 +98,6 @@ void JouerVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
             // If our ADSR envelope has reached its end, we've got no more audio to output, so we end the note
             if(!adsr.isActive()) {
                 stopNote(0, false);
-                clearCurrentNote();
             }
         }
     }
@@ -110,14 +109,15 @@ void JouerVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 
     // If the sound the Synthesizer wants us to play is a JouerSound, we move forward
     if(incoming != nullptr){
+        std::cout<<midiNoteNumber;
+
         // If the midiNoteNumber is in this lower region, then it's being used to change region markers.
-        if(midiNoteNumber < 18){
-            int index = midiNoteNumber - 5;
+        if(midiNoteNumber >= 41 && midiNoteNumber<= 53){
+            int index = midiNoteNumber - 41;
             std::cout<<index;
 
             // Some DAWs and MIDI controllers allow you to input notes lower than 5. Mine doesn't.
-            // This block will not run if the region is trying to be changed out of range,
-            // or if the note being played is lower than MIDI note 5.
+            // This block will not run if the region is trying to be changed out of range.
             if(index < RegionObserver::getSize() && index >= 0){
                 auto r = RegionObserver::getRegionMarker(index);
                 activeRegion = r->getRegion();
@@ -161,10 +161,6 @@ void JouerVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 //        std::cout<<end;
 //        std::cout<<"\n";
 
-        // Grab mode state to enable or disable note processing
-        mode1 = ModeButtons::buttons[0].getToggleState();
-        mode2 = ModeButtons::buttons[1].getToggleState();
-
         // Grab ADSR envelope to apply later, and put it into the start state
         adsr = dynamic_cast<JouerSound*>(sound)->returnADSR();
         adsr.noteOn();
@@ -182,8 +178,8 @@ void JouerVoice::stopNote(float velocity, bool allowTailOff) {
     else {
         // If we're here, it's because there's no audio left to play. We'll set our ADSR envelope
         // back to the start and tell the audio processor we've finished our note.
-        std::cout<<"off: cut";
-        std::cout<<"\n";
+//        std::cout<<"off: cut";
+//        std::cout<<"\n";
         adsr.reset();
         clearCurrentNote();
     }
@@ -209,4 +205,9 @@ float JouerVoice::clip(float value) {
     if (value >= 1) return 0.125 + ((rand() % 100 - 50)/10000);
     else if (value <= -1) return -0.125 + ((rand() % 100 - 50)/10000);
     else return value + ((rand() % 100 - 50)/10000);
+}
+
+void JouerVoice::updateModes(bool mode1Enabled, bool mode2Enabled) {
+    mode1 = mode1Enabled;
+    mode2 = mode2Enabled;
 }

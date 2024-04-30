@@ -5,7 +5,7 @@
 #include "ModeButtons.h"
 #include "BinaryData.h"
 
-ModeButtons::ModeButtons(){
+ModeButtons::ModeButtons(AudioPluginAudioProcessor& g):processorRef(g){
     int width = (60) * BUTTON_COUNT;
     juce::Rectangle<int> modeButtonsBounds = juce::Rectangle<int>(0,0, width,60);
     setBounds(modeButtonsBounds);
@@ -15,6 +15,9 @@ ModeButtons::ModeButtons(){
         s.setToggleable(true);
         s.setClickingTogglesState(true);
     }
+
+    mode1Attch = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.getApvts(), "MODE1", buttons[0]);
+    mode2Attch = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.getApvts(), "MODE2", buttons[1]);
 
     initializeButtons();
 
@@ -50,20 +53,6 @@ void ModeButtons::initializeButtons(){
                              0.5f, juce::Colours::transparentWhite,
                              juce::Image(), 1.0f, juce::Colours::transparentWhite,
                              juce::Image(), 1.0f, juce::Colours::transparentBlack, 0);
-        buttons[i].addListener(this);
         std::cout << "Button visible?" + std::to_string(buttons[i].isVisible()) + "\n";
     }
-}
-
-
-
-void ModeButtons::buttonClicked(juce::Button *b){
-//    std::cout << "something";
-//
-//    std::array<bool, 5> modesNow;
-//    for(int i = 0; i < 5; i++){
-//        modesNow[i] = buttons[i].isDown();
-//    }
-//
-//    JouerSampleVoice::updateModesState(modesNow);
 }

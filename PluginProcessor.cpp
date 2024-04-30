@@ -14,6 +14,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
        apvts(*this, nullptr, juce::Identifier("jouerAPVTS"),
              initParams())
 {
+    apvts.state.addListener(this);
+
     mFormatManager.registerBasicFormats();
     for(int i = 0; i < numVoices; i++){
         synth.addVoice(new JouerVoice());
@@ -149,19 +151,27 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    if(shouldADSRUpdate) setADSREnvelope();
+
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
 }
 
-void AudioPluginAudioProcessor::setADSREnvelope(double attack, double decay, double sustain, double release) {
-    // Be VERY CAREFUL not to call this function before loadedSample actually contains any information!
-    // It WILL cause an access violation!!!
+void AudioPluginAudioProcessor::setADSREnvelope() {
 
+    // If there's no file loaded, don't run!!!! This WILL result in an access violation and crash the program!!!!!!
+    if(loadedSample != nullptr){
+        adsrEnvelope.setParameters(
+                juce::ADSR::Parameters(
+                        apvts.getRawParameterValue("ATTACK")->load(),
+                        apvts.getRawParameterValue("DECAY")->load(),
+                        apvts.getRawParameterValue("SUSTAIN")->load(),
+                        apvts.getRawParameterValue("RELEASE")->load()));
+        adsrEnvelope.setSampleRate(getSampleRate());
 
-
-    adsrEnvelope.setParameters(juce::ADSR::Parameters(attack,decay,sustain,release));
-    adsrEnvelope.setSampleRate(getSampleRate());
-    loadedSample->passEnvelope(adsrEnvelope);
+        loadedSample->passEnvelope(adsrEnvelope);
+        shouldADSRUpdate = false;
+    }
 }
 
 //==============================================================================
@@ -194,6 +204,8 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 void AudioPluginAudioProcessor::loadFile(juce::String path){
+    // Receives a call from WaveformWindow when a file is dropped onto it
+
     synth.clearSounds();
     juce::File file = juce::File(path);
     mFormatReader = mFormatManager.createReaderFor(file);
@@ -203,6 +215,7 @@ void AudioPluginAudioProcessor::loadFile(juce::String path){
                                   60, 0.0, 0.0, 60);
 
     synth.addSound(loadedSample);
+    setADSREnvelope();
 
 }
 
@@ -217,7 +230,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::i
     // Vector/Array list of Parameters that we neeeeeeeeeeeeeeed
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
 
-    // Can't do this cleanly. We're making these one at a time.
+    // Can't do this any other way. We're making these one at a time.
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>
                                  ("ATTACK", "Attack", 0.0f, 2.0f, 0.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>
@@ -226,7 +239,67 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::i
                                  ("SUSTAIN", "Sustain", 0.0f, 1.0f, 1.0f));
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>
                                  ("RELEASE", "release", 0.0f, 2.0f, 0.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterBool>
+                                 ("MODE1", "mode1", false));
+    parameters.push_back(std::make_unique<juce::AudioParameterBool>
+                                 ("MODE2", "mode2", false));
 
     // Return from beginning to end
     return{parameters.begin(), parameters.end()};
+}
+
+juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getApvts(){
+    return apvts;
+}
+
+void AudioPluginAudioProcessor::valueTreePropertyChanged
+(juce::ValueTree &tree, const juce::Identifier &id){
+    // We set this to true so that it updates the ADSR envelope on the next memory block.
+    // After setADSREnvelope() is called, shouldADSRUpdate will be set back to false by that function.
+    shouldADSRUpdate = true;
+
+    // Whenever the modes are changed, we'll just send this. Godspeed.
+    JouerVoice::updateModes(apvts.getRawParameterValue("MODE1")->load(), apvts.getRawParameterValue("MODE2")->load());
+}
+
+void AudioPluginAudioProcessor::saveXML(){
+    std::cout<<"yoohoo\n";
+
+    chooser = std::make_unique<juce::FileChooser>(
+            "Choose where to save this preset.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+            "*.jouerxml"
+            );
+
+    auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto xmlElement = apvts.state.createXml();
+            auto path = juce::XmlElement::createTextElement(FileHolder::path);
+            path->setTagName("PATH");
+            xmlElement->addChildElement(path);
+            xmlElement->writeTo(fc.getResult());
+        }
+    );
+}
+
+void AudioPluginAudioProcessor::loadXML(){
+    std::cout<<"adad\n";
+
+    chooser = std::make_unique<juce::FileChooser>(
+            "Choose a preset to load.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+            "*.jouerxml"
+    );
+
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+                          {
+                              auto fileLoaded = fc.getResult();
+                              auto XML = juce::parseXML(fileLoaded);
+                              std::cout<<XML->toString();
+                              FileHolder::setPath(XML->getChildByName("PATH")->getAttributeValue(0));
+                          }
+    );
+
 }

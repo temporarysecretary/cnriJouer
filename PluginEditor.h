@@ -8,7 +8,7 @@
 #include "RegionOverlay.h"
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Timer
+class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &,
@@ -29,14 +29,16 @@ private:
     DynamicsControlsComponent dynamicsControlsComponent;
     RegionOverlay regionOverlay;
 
+    juce::TextButton save;
+    juce::TextButton load;
+    juce::TextButton showTutorial;
+
     juce::Label windowLabel;
 
     void timerCallback() override{
         keyboardComponent.grabKeyboardFocus();
         stopTimer();
     }
-
-
 
     double width;
     double height;

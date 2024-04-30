@@ -6,7 +6,6 @@
 #define CNRIJOUER_JOUERVOICE_H
 #include <juce_audio_formats/juce_audio_formats.h>
 #include "JouerSound.h"
-#include "ModeButtons.h"
 #include "RegionMarker.h"
 
 class JouerVoice: public juce::SynthesiserVoice {
@@ -22,12 +21,14 @@ public:
     void pitchWheelMoved(int newPitchWheelValue) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
 
+    static void updateModes(bool mode1, bool mode2);
+
     // My functions
     float clip(float value);
 
 private:
-    bool mode1 = false;
-    bool mode2 = false;
+    static inline bool mode1 = false;
+    static inline bool mode2 = false;
     juce::ADSR adsr;
 
     static inline int activeRegion;

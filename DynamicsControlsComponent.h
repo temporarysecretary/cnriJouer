@@ -12,7 +12,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
 
-class DynamicsControlsComponent : public juce::Component, private juce::Slider::Listener{
+class DynamicsControlsComponent : public juce::Component{
 public:
     DynamicsControlsComponent(AudioPluginAudioProcessor&);
     ~DynamicsControlsComponent();
@@ -23,10 +23,13 @@ private:
     std::array<juce::Label,SLIDER_COUNT> ADSRLabelArray;
 
     AudioPluginAudioProcessor& processorRef;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttch;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttch;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttch;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttch;
 
     void paint(juce::Graphics &g) override;
     void resized() override;
-    void sliderValueChanged(juce::Slider *slider) override;
 };
 
 

@@ -24,9 +24,17 @@ DynamicsControlsComponent::DynamicsControlsComponent(AudioPluginAudioProcessor& 
         std::cout << "slider created!";
         s.setSliderStyle(juce::Slider::SliderStyle::LinearBarVertical);
         s.setColour(juce::Slider::ColourIds::trackColourId, juce::Colour(0xff0099ff));
-        s.addListener(this);
         addAndMakeVisible(&s);
     }
+
+    attackAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+            (p.getApvts(), "ATTACK", ADSRSliderArray[0]);
+    decayAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+            (p.getApvts(), "DECAY", ADSRSliderArray[1]);
+    sustainAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+            (p.getApvts(), "SUSTAIN", ADSRSliderArray[2]);
+    releaseAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+            (p.getApvts(), "RELEASE", ADSRSliderArray[3]);
 
     // Initializes slider labels. It makes things neater to use arrays and looping through like this.
     for(int i = 0; i < SLIDER_COUNT; i++){
@@ -36,14 +44,6 @@ DynamicsControlsComponent::DynamicsControlsComponent(AudioPluginAudioProcessor& 
         ADSRLabelArray[i].setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
         ADSRLabelArray[i].setFont(juce::Font("Century Gothic", 16, juce::Font::FontStyleFlags::plain));
         ADSRLabelArray[i].setJustificationType(juce::Justification::centred);
-        if(i == 2){
-            ADSRSliderArray[i].setRange(0.0,1.0,0.01);
-            ADSRSliderArray[i].setValue(0.8, juce::dontSendNotification);
-        }
-        else{
-            ADSRSliderArray[i].setRange(0.01,2,0.01);
-            ADSRSliderArray[i].setValue(0.01, juce::dontSendNotification);
-        }
     }
 }
 
@@ -64,22 +64,7 @@ void DynamicsControlsComponent::resized(){
     }
 }
 
-void DynamicsControlsComponent::sliderValueChanged(juce::Slider *slider) {
-    // Sends message to the audio processor with the new ADSR values
-    // But only if FileHolder contains a valid sample i.e. it's not a nullptr...
-    // Otherwise, this shit WILL explode
 
-    if(FileHolder::doesSampleExist()){
-//        std::cout<<"Value tweaked";
-
-        processorRef.setADSREnvelope(
-                ADSRSliderArray[0].getValue(),
-                ADSRSliderArray[1].getValue(),
-                ADSRSliderArray[2].getValue(),
-                ADSRSliderArray[3].getValue()
-        );
-    }
-    }
 
 DynamicsControlsComponent::~DynamicsControlsComponent() {
 

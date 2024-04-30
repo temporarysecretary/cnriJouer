@@ -7,7 +7,7 @@
 #include "JouerVoice.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
+class AudioPluginAudioProcessor final : public juce::AudioProcessor, juce::ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -47,8 +47,14 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     void loadFile(juce::String path);
-    void setADSREnvelope(double attack, double decay, double sustain, double release);
-    void modesUpdate(std::array<bool, 5> modes);
+
+    // Save XML
+    void saveXML();
+    // Load XML
+    void loadXML();
+
+    void setADSREnvelope();
+    juce::AudioProcessorValueTreeState& getApvts();
     juce::AudioFormatReader* mFormatReader{nullptr};
 
 private:
@@ -56,8 +62,19 @@ private:
     const int numVoices = 8;
     juce::AudioFormatManager mFormatManager;
 
+
+    // I used some community resources to learn how to handle the save state.
+    // https://youtu.be/HrRghlZHJvE
+    // After that, I extended that to boolean parameters for saving the mode states,
+    // and then used the XMLElement class to add the file path.
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout initParams();
+    void valueTreePropertyChanged(juce::ValueTree &, const juce::Identifier &) override;
+
+    // File dialogue box
+    std::unique_ptr<juce::FileChooser> chooser;
+
+    std::atomic<bool> shouldADSRUpdate = false;
 
     juce::AudioParameterFloat* attack;
     juce::AudioParameterFloat* decay;

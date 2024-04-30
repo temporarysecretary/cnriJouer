@@ -7,7 +7,7 @@
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p,
                                                                  juce::MidiKeyboardComponent keyboardComponent)
     : AudioProcessorEditor (&p), processorRef (p), keyboardComponent(keyboardState, juce::KeyboardComponentBase::Orientation::horizontalKeyboard),
-      waveformWindow(p), dynamicsControlsComponent(p)
+      waveformWindow(p), dynamicsControlsComponent(p), modeButtons(p)
     {
     width = 800;
     height = 500;
@@ -21,7 +21,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(&windowLabel);
     windowLabel.setFont(juce::Font("Century Gothic", 64, juce::Font::FontStyleFlags::plain));
     windowLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
-    windowLabel.setText("watch revue starlight bitch", juce::dontSendNotification);
+    windowLabel.setText("jouer demo :)", juce::dontSendNotification);
     windowLabel.setJustificationType(juce::Justification::topLeft);
 
     addAndMakeVisible(&dynamicsControlsComponent);
@@ -40,6 +40,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     addAndMakeVisible(&keyboardComponent);
     startTimer(400);
+
+    addAndMakeVisible(&save);
+    addAndMakeVisible(&load);
+
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -74,6 +78,16 @@ void AudioPluginAudioProcessorEditor::resized()
     windowLabel.setBounds(44,44,getParentWidth(),getParentHeight());
 
     modeButtons.setBounds(43,400,modeButtons.getWidth(),modeButtons.getHeight());
+
+    save.setBounds(0,0,40,20);
+    save.setButtonText("save");
+    save.setTopRightPosition(780,470);
+    save.onClick = [this]{this->processorRef.saveXML();};
+
+    load.setBounds(0,0,40,20);
+    load.setButtonText("load");
+    load.setTopRightPosition(700,470);
+    load.onClick = [this]{this->processorRef.loadXML();};
 
     FileHolder::fileLabel.attachToComponent(&waveformWindow,false);
 }
