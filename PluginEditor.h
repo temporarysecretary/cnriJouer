@@ -33,6 +33,9 @@ private:
     juce::TextButton load;
     juce::TextButton showTutorial;
 
+    // File dialogue box
+    std::unique_ptr<juce::FileChooser> chooser;
+
     juce::Label windowLabel;
 
     void timerCallback() override{

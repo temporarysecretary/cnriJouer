@@ -5,6 +5,7 @@
 #include "FileHolder.h"
 #include "JouerSound.h"
 #include "JouerVoice.h"
+#include "RegionMarker.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor, juce::ValueTree::Listener
@@ -54,6 +55,7 @@ public:
     void loadXML();
 
     void setADSREnvelope();
+    void updateModes();
     juce::AudioProcessorValueTreeState& getApvts();
     juce::AudioFormatReader* mFormatReader{nullptr};
 

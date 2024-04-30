@@ -15,7 +15,19 @@ RegionMarker::~RegionMarker(){
     observer->remove(this);
 }
 
+RegionMarker::RegionMarker(int isStart, int start, int end, int loopFlag) {
+    std::cout<<"made region marker from XML";
+    startEndFlag = isStart;
+    startSample = start;
+    endSample = end;
+    loopState = loopFlag;
+}
+
+
 void RegionMarker::paint(juce::Graphics &g){
+    std::cout<<"painting region marker";
+
+
     switch(loopState){
         case 0: color.operator=(juce::Colour(0xFF000000)); break;
         case 1: color.operator=(juce::Colour(0xFF00FF00)); break;
@@ -23,7 +35,7 @@ void RegionMarker::paint(juce::Graphics &g){
         case 3: color.operator=(juce::Colour(0xFFFF0000)); break;
     }
 
-//    std::cout << color.toString();
+    std::cout << color.toString();
 
     int width = 3;
     if(isMouseOver(false)) width = 5;
@@ -106,6 +118,10 @@ void RegionMarker::setTotalSampleLength(int newLength) {
     totalSampleLength = newLength;
 }
 
+int RegionMarker::getTotalSampleLength() {
+    return totalSampleLength;
+}
+
 void RegionMarker::setStartSample(int newStart) {
     startSample = newStart;
 }
@@ -121,6 +137,7 @@ int RegionMarker::getRegion() {
 void RegionMarker::setRegion(int newRegion) {
     region = newRegion;
 }
+// RegionObserver
 
 RegionObserver::RegionObserver(){
     size = 0;
@@ -154,20 +171,20 @@ void RegionObserver::update() {
 
     for(int i = 1; i<regionMarkers.size(); i++){
         regionMarkers[i-1]->setEndSample(regionMarkers[i]->getStartSample());
-        std::cout<<i-1;
-        std::cout<<" ";
-        std::cout<<regionMarkers[i-1]->getStartSample();
-        std::cout<<" ";
-        std::cout<<regionMarkers[i-1]->getEndSample();
-        std::cout<<"\n";
+//        std::cout<<i-1;
+//        std::cout<<" ";
+//        std::cout<<regionMarkers[i-1]->getStartSample();
+//        std::cout<<" ";
+//        std::cout<<regionMarkers[i-1]->getEndSample();
+//        std::cout<<"\n";
     }
 
     auto end = regionMarkers[regionMarkers.size()-1];
-    std::cout<<"end: ";
-    std::cout<<end->getStartSample();
-    std::cout<<" ";
-    std::cout<<end->getEndSample();
-    std::cout<<"\n";
+//    std::cout<<"end: ";
+//    std::cout<<end->getStartSample();
+//    std::cout<<" ";
+//    std::cout<<end->getEndSample();
+//    std::cout<<"\n";
 }
 
 void RegionObserver::sort() {
@@ -175,9 +192,9 @@ void RegionObserver::sort() {
     bool swapped;
 
     for(auto j: regionMarkers){
-        std::cout<<"unsorted: ";
-        std::cout<<j->getStartSample();
-        std::cout<<"\n";
+//        std::cout<<"unsorted: ";
+//        std::cout<<j->getStartSample();
+//        std::cout<<"\n";
     }
 
     do{
@@ -195,9 +212,9 @@ void RegionObserver::sort() {
 
 
     for(auto j: regionMarkers){
-        std::cout<<"sorted: ";
-        std::cout<<j->getStartSample();
-        std::cout<<"\n";
+//        std::cout<<"sorted: ";
+//        std::cout<<j->getStartSample();
+//        std::cout<<"\n";
     }
 }
 

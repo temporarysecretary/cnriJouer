@@ -252,6 +252,11 @@ juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getApvts(){
     return apvts;
 }
 
+void AudioPluginAudioProcessor::updateModes(){
+
+    JouerVoice::updateModes(apvts.getRawParameterValue("MODE1")->load(), apvts.getRawParameterValue("MODE2")->load());
+};
+
 void AudioPluginAudioProcessor::valueTreePropertyChanged
 (juce::ValueTree &tree, const juce::Identifier &id){
     // We set this to true so that it updates the ADSR envelope on the next memory block.
@@ -259,7 +264,7 @@ void AudioPluginAudioProcessor::valueTreePropertyChanged
     shouldADSRUpdate = true;
 
     // Whenever the modes are changed, we'll just send this. Godspeed.
-    JouerVoice::updateModes(apvts.getRawParameterValue("MODE1")->load(), apvts.getRawParameterValue("MODE2")->load());
+    updateModes();
 }
 
 void AudioPluginAudioProcessor::saveXML(){
@@ -278,6 +283,18 @@ void AudioPluginAudioProcessor::saveXML(){
             auto path = juce::XmlElement::createTextElement(FileHolder::path);
             path->setTagName("PATH");
             xmlElement->addChildElement(path);
+
+            for(int i = 0; i < RegionObserver::getSize(); i++){
+                auto rm = RegionObserver::getRegionMarker(i);
+                auto xmlRegionMarker = new juce::XmlElement("RegionMarker");
+                xmlRegionMarker->setAttribute("index", i);
+                xmlRegionMarker->setAttribute("isStart", rm->getStartEndFlag());
+                xmlRegionMarker->setAttribute("start", rm->getStartSample());
+                xmlRegionMarker->setAttribute("end", rm->getEndSample());
+                xmlRegionMarker->setAttribute("loop", rm->getLoopState());
+                xmlElement->addChildElement(xmlRegionMarker);
+            }
+
             xmlElement->writeTo(fc.getResult());
         }
     );
@@ -295,10 +312,18 @@ void AudioPluginAudioProcessor::loadXML(){
 
     chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
                           {
-                              auto fileLoaded = fc.getResult();
-                              auto XML = juce::parseXML(fileLoaded);
-                              std::cout<<XML->toString();
-                              std::cout<<XML->getChildByName("PATH")->getAttributeValue(0);
+                            if(fc.getResult() != juce::File()){
+                                auto fileLoaded = fc.getResult();
+                                auto XML = juce::parseXML(fileLoaded);
+                                std::cout<<XML->toString();
+                                FileHolder::path = XML->getChildByName("PATH")->getAttributeValue(0);
+
+
+
+                                auto treeFromXML = juce::ValueTree::fromXml(XML->toString());
+
+                                apvts.replaceState(treeFromXML);
+                            }
                           }
     );
 

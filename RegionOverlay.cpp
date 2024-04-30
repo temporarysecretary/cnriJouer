@@ -72,3 +72,37 @@ void RegionOverlay::mouseDown(const juce::MouseEvent &event){
         std::cout<<"\n";
     }
 }
+
+void RegionOverlay::generateFromXML(juce::XmlElement& xml) {
+    regionObserver->clear();
+
+    auto length = xml.getChildByName("SAMPLE_META")->getAttributeValue(0).getIntValue();
+    auto regions = xml.getChildWithTagNameIterator("RegionMarker");
+
+    for(auto s: regions){
+//        std::cout << length;
+//        std::cout << "= length\n";
+
+        auto isStart = s->getAttributeValue(1).getIntValue();
+        auto startSam = s->getAttributeValue(2).getIntValue();
+        auto endSam = s->getAttributeValue(3).getIntValue();
+        auto loopFlag = s->getAttributeValue(4).getIntValue();
+
+        auto location = startSam * this->getWidth() / length;
+//        std::cout << location;
+//        std::cout << "= location\n";
+
+        auto newMarker = (new RegionMarker(isStart, startSam, endSam, loopFlag));
+        addChildComponent(newMarker);
+        newMarker->attach(regionObserver);
+        regionObserver->add(newMarker);
+        newMarker->setVisible(true);
+        newMarker->setBounds(location, 0, 5, this->getHeight());
+
+        std::cout<<newMarker->getStartSample();
+        std::cout<< " ";
+        std::cout<<newMarker->getEndSample();
+        std::cout<<"\n";
+    }
+
+}

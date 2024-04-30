@@ -15,9 +15,10 @@ public:
     ~RegionOverlay();
 
     void initFirstRegionMarker();
+    RegionObserver *regionObserver;
+    void generateFromXML(juce::XmlElement& xml);
 
 private:
-    RegionObserver *regionObserver;
     juce::Rectangle<int> regionOverlayBounds;
     juce::Point<int> mousePosition;
 

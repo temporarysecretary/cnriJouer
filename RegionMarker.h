@@ -17,6 +17,8 @@ public:
 
     RegionMarker(int xPos, int full, int flag);
 
+    RegionMarker(int isStart, int startSample, int endSample, int loopFlag);
+
     ~RegionMarker();
     RegionMarker();
     void attach(RegionObserver *newObserver);
@@ -31,6 +33,7 @@ public:
     int getEndSample();
     void setEndSample(int newEnd);
     static void setTotalSampleLength(int newLength);
+    static int getTotalSampleLength();
     int getRegion();
     void setRegion(int newRegion);
 
