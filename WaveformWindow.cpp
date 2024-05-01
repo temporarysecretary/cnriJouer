@@ -1,6 +1,3 @@
-//
-// Created by moonseekr on 2/5/2024.
-//
 
 #include "WaveformWindow.h"//
 #include <juce_gui_basics/juce_gui_basics.h>
