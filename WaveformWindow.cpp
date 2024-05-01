@@ -36,6 +36,9 @@ void WaveformWindow::paint(juce::Graphics &g) {
         paintIfNoFileLoaded (g, waveformWindowBounds);
     else
         paintIfFileLoaded (g, waveformWindowBounds);
+
+    g.setColour(juce::Colour(0x88000000));
+    g.drawRect(juce::Rectangle<int>(400,200), 3);
 }
 
 void WaveformWindow::resized() {
@@ -108,10 +111,9 @@ void WaveformWindow::filesDropped(const juce::StringArray &files, int x, int y) 
 }
 
 void WaveformWindow::paintIfNoFileLoaded(juce::Graphics &g, const juce::Rectangle<int> bounds) {
-    g.setColour(juce::Colours::azure);
-    g.fillRect(bounds);
-    g.setColour(juce::Colours::mediumvioletred);
-    g.drawFittedText("no file!", bounds, juce::Justification::centred, 1);
+    g.setColour(juce::Colours::black);
+    g.setFont(juce::Font("Century Gothic", 14, juce::Font::FontStyleFlags::plain));
+    g.drawFittedText("drag and drop to get started", bounds, juce::Justification::centred, 1);
 
     if(regionOverlay.isVisible()) regionOverlay.setVisible(false);
 }

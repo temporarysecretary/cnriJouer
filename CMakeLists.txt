@@ -85,6 +85,7 @@ target_sources(AudioPluginExample
         FileHolder.cpp
         JouerSound.cpp
         JouerVoice.cpp
+        Tutorial.cpp
         RegionOverlay.cpp
         RegionMarker.cpp
 )

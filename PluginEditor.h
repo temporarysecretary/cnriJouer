@@ -6,6 +6,7 @@
 #include "FileHolder.h"
 #include "ModeButtons.h"
 #include "RegionOverlay.h"
+#include "Tutorial.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
@@ -28,6 +29,7 @@ private:
     juce::MidiKeyboardComponent keyboardComponent;
     DynamicsControlsComponent dynamicsControlsComponent;
     RegionOverlay regionOverlay;
+    Tutorial tutorial;
 
     juce::TextButton save;
     juce::TextButton load;

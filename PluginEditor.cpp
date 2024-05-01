@@ -47,6 +47,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(&load);
     load.onClick = [this]{loadFunc();};
 
+    addAndMakeVisible(&showTutorial);
+    showTutorial.onClick = [this]{tutorial.setVisible(true);};
+
+    addChildComponent(&tutorial);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -82,13 +86,19 @@ void AudioPluginAudioProcessorEditor::resized()
 
     modeButtons.setBounds(43,400,modeButtons.getWidth(),modeButtons.getHeight());
 
+    tutorial.setBounds(getBounds());
+
     save.setBounds(0,0,40,20);
     save.setButtonText("save");
     save.setTopRightPosition(780,470);
 
     load.setBounds(0,0,40,20);
     load.setButtonText("load");
-    load.setTopRightPosition(700,470);
+    load.setTopRightPosition(740,470);
+
+    showTutorial.setBounds(0,0,40,20);
+    showTutorial.setButtonText("help");
+    showTutorial.setTopRightPosition(700,470);
 
     FileHolder::fileLabel.attachToComponent(&waveformWindow,false);
 }
