@@ -35,6 +35,9 @@ private:
 
     // File dialogue box
     std::unique_ptr<juce::FileChooser> chooser;
+    void loadFunc();
+    void saveFunc();
+    juce::XmlElement loadedPreset;
 
     juce::Label windowLabel;
 
@@ -42,6 +45,7 @@ private:
         keyboardComponent.grabKeyboardFocus();
         stopTimer();
     }
+
 
     double width;
     double height;

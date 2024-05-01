@@ -7,7 +7,7 @@
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p,
                                                                  juce::MidiKeyboardComponent keyboardComponent)
     : AudioProcessorEditor (&p), processorRef (p), keyboardComponent(keyboardState, juce::KeyboardComponentBase::Orientation::horizontalKeyboard),
-      waveformWindow(p), dynamicsControlsComponent(p), modeButtons(p)
+      waveformWindow(p), dynamicsControlsComponent(p), modeButtons(p), loadedPreset("preset")
     {
     width = 800;
     height = 500;
@@ -42,7 +42,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     startTimer(400);
 
     addAndMakeVisible(&save);
+    save.onClick = [this]{saveFunc();};
+
     addAndMakeVisible(&load);
+    load.onClick = [this]{loadFunc();};
 
 }
 
@@ -83,81 +86,80 @@ void AudioPluginAudioProcessorEditor::resized()
     save.setButtonText("save");
     save.setTopRightPosition(780,470);
 
-    // I originally wrote this in the PluginProcessor file but realized it needed the scope of PluginEditor.
-    save.onClick = [this]{
-        std::cout<<"yoohoo\n";
-
-        chooser = std::make_unique<juce::FileChooser>(
-                "Choose where to save this preset.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-                "*.jouerxml"
-        );
-
-        auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles;
-
-        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
-                              {
-                                  auto xmlElement = this->processorRef.getApvts().state.createXml();
-                                  auto path = juce::XmlElement::createTextElement(FileHolder::path);
-                                  path->setTagName("PATH");
-                                  xmlElement->addChildElement(path);
-
-                                  auto meta = new juce::XmlElement("SAMPLE_META");
-                                  meta->setAttribute("length", RegionMarker::getTotalSampleLength());
-                                  xmlElement->addChildElement(meta);
-
-                                  // Converts all the regions to XML form.
-                                  for(int i = 0; i < RegionObserver::getSize(); i++){
-                                      auto rm = RegionObserver::getRegionMarker(i);
-                                      auto xmlRegionMarker = new juce::XmlElement("RegionMarker");
-                                      xmlRegionMarker->setAttribute("index", i);
-                                      xmlRegionMarker->setAttribute("isStart", rm->getStartEndFlag());
-                                      xmlRegionMarker->setAttribute("start", rm->getStartSample());
-                                      xmlRegionMarker->setAttribute("end", rm->getEndSample());
-                                      xmlRegionMarker->setAttribute("loop", rm->getLoopState());
-                                      xmlElement->addChildElement(xmlRegionMarker);
-                                  }
-
-                                  xmlElement->writeTo(fc.getResult());
-                              }
-        );
-    };
-
     load.setBounds(0,0,40,20);
     load.setButtonText("load");
     load.setTopRightPosition(700,470);
 
-    // I originally wrote this in the PluginProcessor file but realized it needed the scope of PluginEditor.
-    load.onClick = [this]{
-
-        std::cout<<"adad\n";
-
-        chooser = std::make_unique<juce::FileChooser>(
-                "Choose a preset to load.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
-                "*.jouerxml"
-        );
-
-        auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
-
-        chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
-                              {
-                                  if(fc.getResult() != juce::File()){
-                                      auto fileLoaded = fc.getResult();
-                                      auto XML = juce::parseXML(fileLoaded);
-                                      std::cout<<XML->toString();
-                                      FileHolder::path = XML->getChildByName("PATH")->getAttributeValue(0);
-                                      waveformWindow.filesDropped(FileHolder::path,0,0);
-
-                                      auto treeFromXML = juce::ValueTree::fromXml(XML->toString());
-
-                                      this->processorRef.getApvts().replaceState(treeFromXML);
-                                      this->processorRef.setADSREnvelope();
-                                      this->processorRef.updateModes();
-
-                                      regionOverlay.generateFromXML(*XML);
-                                  }
-                              }
-        );
-    };
-
     FileHolder::fileLabel.attachToComponent(&waveformWindow,false);
+}
+
+// I originally wrote these in the PluginProcessor file but realized it needed the scope of PluginEditor.
+void AudioPluginAudioProcessorEditor::loadFunc(){
+    std::cout<<"adad\n";
+
+    chooser = std::make_unique<juce::FileChooser>(
+            "Choose a preset to load.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+            "*.jouerxml"
+    );
+
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+                          {
+                              if(fc.getResult() != juce::File()){
+                                  auto fileLoaded = fc.getResult();
+                                  auto XML = juce::parseXML(fileLoaded);
+                                  std::cout<<XML->toString();
+                                  FileHolder::path = XML->getChildByName("PATH")->getAttributeValue(0);
+                                  waveformWindow.filesDropped(FileHolder::path,0,0);
+
+                                  auto treeFromXML = juce::ValueTree::fromXml(XML->toString());
+
+                                  processorRef.getApvts().replaceState(treeFromXML);
+                                  processorRef.setADSREnvelope();
+                                  processorRef.updateModes();
+                                  regionOverlay.generateFromXML(*XML);
+                              }
+                          }
+    );
+
+}
+
+void AudioPluginAudioProcessorEditor::saveFunc() {
+
+    std::cout<<"yoohoo\n";
+
+    chooser = std::make_unique<juce::FileChooser>(
+            "Choose where to save this preset.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
+            "*.jouerxml"
+    );
+
+    auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles;
+
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+                          {
+                              auto xmlElement = this->processorRef.getApvts().state.createXml();
+                              auto path = juce::XmlElement::createTextElement(FileHolder::path);
+                              path->setTagName("PATH");
+                              xmlElement->addChildElement(path);
+
+                              auto meta = new juce::XmlElement("SAMPLE_META");
+                              meta->setAttribute("length", RegionMarker::getTotalSampleLength());
+                              xmlElement->addChildElement(meta);
+
+                              // Converts all the regions to XML form.
+                              for(int i = 0; i < RegionObserver::getSize(); i++){
+                                  auto rm = RegionObserver::getRegionMarker(i);
+                                  auto xmlRegionMarker = new juce::XmlElement("RegionMarker");
+                                  xmlRegionMarker->setAttribute("index", i);
+                                  xmlRegionMarker->setAttribute("isStart", rm->getStartEndFlag());
+                                  xmlRegionMarker->setAttribute("start", rm->getStartSample());
+                                  xmlRegionMarker->setAttribute("end", rm->getEndSample());
+                                  xmlRegionMarker->setAttribute("loop", rm->getLoopState());
+                                  xmlElement->addChildElement(xmlRegionMarker);
+                              }
+
+                              xmlElement->writeTo(fc.getResult());
+                          }
+    );
 }

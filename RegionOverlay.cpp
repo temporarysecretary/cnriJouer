@@ -60,7 +60,7 @@ void RegionOverlay::mouseDown(const juce::MouseEvent &event){
     // Instantiates a new RegionMarker when clicked.
     if(event.mods.isLeftButtonDown()){
 
-        auto newMarker = (new RegionMarker(event.getMouseDownX(),this->getWidth()));
+        auto newMarker = (new RegionMarker(event.getMouseDownX(),this->getWidth()));\
         newMarker->attach(regionObserver);
         regionObserver->add(newMarker);
         this->addAndMakeVisible(newMarker);
@@ -83,26 +83,25 @@ void RegionOverlay::generateFromXML(juce::XmlElement& xml) {
 //        std::cout << length;
 //        std::cout << "= length\n";
 
+        auto savedRegion = s->getAttributeValue(0).getIntValue();
         auto isStart = s->getAttributeValue(1).getIntValue();
         auto startSam = s->getAttributeValue(2).getIntValue();
         auto endSam = s->getAttributeValue(3).getIntValue();
         auto loopFlag = s->getAttributeValue(4).getIntValue();
 
-        auto location = startSam * this->getWidth() / length;
-//        std::cout << location;
-//        std::cout << "= location\n";
-
-        auto newMarker = (new RegionMarker(isStart, startSam, endSam, loopFlag));
-        addChildComponent(newMarker);
-        newMarker->attach(regionObserver);
-        regionObserver->add(newMarker);
-        newMarker->setVisible(true);
-        newMarker->setBounds(location, 0, 5, this->getHeight());
-
-        std::cout<<newMarker->getStartSample();
-        std::cout<< " ";
-        std::cout<<newMarker->getEndSample();
-        std::cout<<"\n";
+        putNewMarker(savedRegion, isStart, startSam, endSam, loopFlag, length);
     }
-
 }
+
+void RegionOverlay::putNewMarker(int savedRegion, int isStart, int startSam, int endSam, int loopFlag, int totalLength){
+    auto location = startSam * this->getWidth() / totalLength;
+    std::cout << location;
+    std::cout << "= location\n";
+
+    auto newMarker = new RegionMarker(savedRegion, isStart, startSam, endSam, loopFlag);
+    newMarker->attach(regionObserver);
+    regionObserver->add(newMarker);
+    newMarker->setBounds(location, 0, 5, this->getHeight());
+    addAndMakeVisible(*newMarker);
+}
+

@@ -21,7 +21,7 @@ public:
 private:
     juce::Rectangle<int> regionOverlayBounds;
     juce::Point<int> mousePosition;
-
+    void putNewMarker(int savedRegion, int isStart, int startSam, int endSam, int loopFlag, int totalLength);
     void resized() override;
     void paint(juce::Graphics &g) override;
     void paintOnMouseMove(juce::Graphics &g);

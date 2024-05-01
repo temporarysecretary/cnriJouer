@@ -17,7 +17,8 @@ public:
 
     RegionMarker(int xPos, int full, int flag);
 
-    RegionMarker(int isStart, int startSample, int endSample, int loopFlag);
+    RegionMarker(int savedRegion, int isStart,
+                 int startSample, int endSample, int loopFlag);
 
     ~RegionMarker();
     RegionMarker();
@@ -37,7 +38,7 @@ public:
     int getRegion();
     void setRegion(int newRegion);
 
-    juce::Colour color;
+    juce::Colour color = juce::Colour(0xFF000000);
     int region;
 
     static const int LOOP_DISABLED = 0;
@@ -58,7 +59,7 @@ private:
     int startSample = 0;
     int endSample = totalSampleLength;
     void paint(juce::Graphics &g);
-
+    void resized();
     void mouseEnter(const juce::MouseEvent &e);
 };
 

@@ -49,11 +49,6 @@ public:
 
     void loadFile(juce::String path);
 
-    // Save XML
-    void saveXML();
-    // Load XML
-    void loadXML();
-
     void setADSREnvelope();
     void updateModes();
     juce::AudioProcessorValueTreeState& getApvts();

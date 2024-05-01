@@ -15,8 +15,9 @@ RegionMarker::~RegionMarker(){
     observer->remove(this);
 }
 
-RegionMarker::RegionMarker(int isStart, int start, int end, int loopFlag) {
+RegionMarker::RegionMarker(int savedRegion, int isStart, int start, int end, int loopFlag) {
     std::cout<<"made region marker from XML";
+    region = savedRegion;
     startEndFlag = isStart;
     startSample = start;
     endSample = end;
@@ -27,7 +28,6 @@ RegionMarker::RegionMarker(int isStart, int start, int end, int loopFlag) {
 void RegionMarker::paint(juce::Graphics &g){
     std::cout<<"painting region marker";
 
-
     switch(loopState){
         case 0: color.operator=(juce::Colour(0xFF000000)); break;
         case 1: color.operator=(juce::Colour(0xFF00FF00)); break;
@@ -37,11 +37,13 @@ void RegionMarker::paint(juce::Graphics &g){
 
     std::cout << color.toString();
 
-    int width = 3;
-    if(isMouseOver(false)) width = 5;
-
     g.setColour(color);
-    g.fillRect(this->getWidth()/2, 0, width, this->getHeight());
+    g.fillRect(this->getWidth()/2, 0, this->getWidth(), this->getHeight());
+}
+
+void RegionMarker::resized(){
+    setAlwaysOnTop(true);
+    setOpaque(true);
 }
 
 void RegionMarker::change(){
@@ -154,14 +156,14 @@ void RegionObserver::add(RegionMarker *r) {
 }
 
 void RegionObserver::clear() {
-    std::cout<< "clearing\n";
+    std::cout<< "clearing observer\n";
 
     while(regionMarkers.begin() != regionMarkers.end()){
         std::cout<< "deleting marker\n";
         delete regionMarkers[0];
     }
 
-    std::cout<< "calling clear";
+    std::cout<< "calling vector clear";
     regionMarkers.clear();
     size = 0;
 }
