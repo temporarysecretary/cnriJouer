@@ -105,29 +105,38 @@ void AudioPluginAudioProcessorEditor::resized()
 
 // I originally wrote these in the PluginProcessor file but realized it needed the scope of PluginEditor.
 void AudioPluginAudioProcessorEditor::loadFunc(){
-    std::cout<<"adad\n";
 
+    // Create a FileChooser that can read *.jouerxml files
     chooser = std::make_unique<juce::FileChooser>(
             "Choose a preset to load.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
             "*.jouerxml"
     );
 
+    // Chooser is to open files only
     auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
 
     chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
                           {
+                            // If a valid File was selected
                               if(fc.getResult() != juce::File()){
+                                  // Load file and parse XML
                                   auto fileLoaded = fc.getResult();
                                   auto XML = juce::parseXML(fileLoaded);
-                                  std::cout<<XML->toString();
+                                  std::cout<<XML->toString(); // debug
+
+                                  // Get file path and load into waveformWindow
                                   FileHolder::path = XML->getChildByName("PATH")->getAttributeValue(0);
                                   waveformWindow.filesDropped(FileHolder::path,0,0);
 
+                                  // Get ValueTree
                                   auto treeFromXML = juce::ValueTree::fromXml(XML->toString());
 
+                                  // Set ValueTree from saved state
                                   processorRef.getApvts().replaceState(treeFromXML);
                                   processorRef.setADSREnvelope();
                                   processorRef.updateModes();
+
+                                  // Generate RegionMarkers
                                   regionOverlay.generateFromXML(*XML);
                               }
                           }
@@ -137,22 +146,29 @@ void AudioPluginAudioProcessorEditor::loadFunc(){
 
 void AudioPluginAudioProcessorEditor::saveFunc() {
 
-    std::cout<<"yoohoo\n";
-
+    // Create a FileChooser that can save *.jouerxml files
     chooser = std::make_unique<juce::FileChooser>(
             "Choose where to save this preset.", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory),
             "*.jouerxml"
     );
 
+    // Saves files only.
     auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles;
 
     chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
                           {
+                            // Create temporary file to overwrite target completely with later
+                              auto temp = juce::TemporaryFile(fc.getResult());
+
+                                // Start with the current value tree's state and flatten to XML
                               auto xmlElement = this->processorRef.getApvts().state.createXml();
+
+                              // Create a new element for the absolute path of the file and add to the tree XML
                               auto path = juce::XmlElement::createTextElement(FileHolder::path);
                               path->setTagName("PATH");
                               xmlElement->addChildElement(path);
 
+                              // Create a new element for the sample's length (and maybe more stuff later) and add to XML
                               auto meta = new juce::XmlElement("SAMPLE_META");
                               meta->setAttribute("length", RegionMarker::getTotalSampleLength());
                               xmlElement->addChildElement(meta);
@@ -169,7 +185,9 @@ void AudioPluginAudioProcessorEditor::saveFunc() {
                                   xmlElement->addChildElement(xmlRegionMarker);
                               }
 
-                              xmlElement->writeTo(fc.getResult());
+                              // Writes to file.
+                              xmlElement->writeTo(temp.getFile());
+                              temp.overwriteTargetFileWithTemporary();
                           }
     );
 }

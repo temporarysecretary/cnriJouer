@@ -27,6 +27,7 @@ DynamicsControlsComponent::DynamicsControlsComponent(AudioPluginAudioProcessor& 
         addAndMakeVisible(&s);
     }
 
+    // Attachments to the valuetree over in PluginProcessor.c
     attackAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
             (p.getApvts(), "ATTACK", ADSRSliderArray[0]);
     decayAttch = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>

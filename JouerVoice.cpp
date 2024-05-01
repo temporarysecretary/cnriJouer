@@ -1,9 +1,7 @@
-//
-// Created by moonseekr on 4/15/2024.
-//
 
 #include "JouerVoice.h"
 
+// This is literally only here for me to see what's happening in the memory buffer
 void debugFunction(float currSample, float counter, int startSample, int numSamples){
     std::cout << "Value: ";
     std::cout << currSample;

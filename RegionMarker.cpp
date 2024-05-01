@@ -1,22 +1,21 @@
-//
-// Created by moonseekr on 4/1/2024.
-//
 
 #include "RegionMarker.h"
 
-
+// No-arg constructor
 RegionMarker::RegionMarker(){
     loopState = LOOP_DISABLED;
     startSample = 0;
     endSample = 0;
 }
 
+// On destruction, tell observer that you're going bye-bye
 RegionMarker::~RegionMarker(){
     observer->remove(this);
 }
 
+// Constructor for use with generateFromXML (see: RegionOverlay)
 RegionMarker::RegionMarker(int savedRegion, int isStart, int start, int end, int loopFlag) {
-    std::cout<<"made region marker from XML";
+    std::cout<<"made region marker from XML"; // debug
     region = savedRegion;
     startEndFlag = isStart;
     startSample = start;
@@ -26,8 +25,9 @@ RegionMarker::RegionMarker(int savedRegion, int isStart, int start, int end, int
 
 
 void RegionMarker::paint(juce::Graphics &g){
-    std::cout<<"painting region marker";
+    std::cout<<"painting region marker"; // debug
 
+    // Change colour depending on loop behavior
     switch(loopState){
         case 0: color.operator=(juce::Colour(0xFF000000)); break;
         case 1: color.operator=(juce::Colour(0xFF00FF00)); break;
@@ -35,8 +35,9 @@ void RegionMarker::paint(juce::Graphics &g){
         case 3: color.operator=(juce::Colour(0xFFFF0000)); break;
     }
 
-    std::cout << color.toString();
+    std::cout << color.toString(); // debug
 
+    // Set colour and fill rectangle
     g.setColour(color);
     g.fillRect(this->getWidth()/2, 0, this->getWidth(), this->getHeight());
 }
@@ -47,6 +48,7 @@ void RegionMarker::resized(){
 }
 
 void RegionMarker::change(){
+    // If you're at one, go to the next, just keep looping, etc...
     switch(loopState){
         case 0:// LOOP_DISABLED
                 loopState = LOOP_FORWARDS;
@@ -61,13 +63,18 @@ void RegionMarker::change(){
                 loopState = LOOP_DISABLED;
             break;
     }
+
+    // Change colours too while you're at it
     repaint();
 }
 
 void RegionMarker::mouseDown(const juce::MouseEvent &e){
+// On left click, change colours
     if(e.mods.isLeftButtonDown()){
         change();
     }
+    // On right click, delete, but only if the marker isn't the very
+    // first marker
     if(e.mods.isRightButtonDown()){
         if(getStartEndFlag() == NEITHER) delete this;
         else std::cout<<"Attempted deletion of start or endpoint";
@@ -90,6 +97,7 @@ void RegionMarker::attach(RegionObserver *newObserver) {
     this->observer = newObserver;
 }
 
+// Constructor without flag
 RegionMarker::RegionMarker(int xPos, int full) {
     loopState = LOOP_DISABLED;
     startEndFlag = NEITHER;
@@ -99,6 +107,7 @@ RegionMarker::RegionMarker(int xPos, int full) {
     endSample = totalSampleLength;
 }
 
+// Constructor for initFirst in RegionOverlay
 RegionMarker::RegionMarker(int xPos, int full, int flag) {
     loopState = LOOP_DISABLED;
     startEndFlag = flag;
@@ -139,12 +148,16 @@ int RegionMarker::getRegion() {
 void RegionMarker::setRegion(int newRegion) {
     region = newRegion;
 }
-// RegionObserver
+
+
+
+// RegionObserver class
 
 RegionObserver::RegionObserver(){
     size = 0;
 }
 
+// Add a new RegionMarker and sort
 void RegionObserver::add(RegionMarker *r) {
     regionMarkers.push_back(r);
     r->setRegion(size);
@@ -155,6 +168,9 @@ void RegionObserver::add(RegionMarker *r) {
     }
 }
 
+// Clear all RegionMarkers by deleting them, then clear the array
+// I'm told this is incredibly stupid and bad by some senior programmers,
+// but I honestly don't know how to do this better
 void RegionObserver::clear() {
     std::cout<< "clearing observer\n";
 
@@ -168,6 +184,7 @@ void RegionObserver::clear() {
     size = 0;
 }
 
+// When a new marker is made, change the endpoint of the marker before it to the start of this one
 void RegionObserver::update() {
     std::cout<<"updating\n";
 
@@ -199,6 +216,7 @@ void RegionObserver::sort() {
 //        std::cout<<"\n";
     }
 
+    // Simple bubble sort algorithm
     do{
         swapped = false;
         for(int i = 1; i < regionMarkers.size(); i++){
@@ -220,6 +238,7 @@ void RegionObserver::sort() {
     }
 }
 
+// Deletes the Marker and updates endpoints.
 void RegionObserver::remove(RegionMarker* goner){
     std::cout<< "remove called\n";
     auto it = std::find(regionMarkers.begin(), regionMarkers.end(),goner);

@@ -1,8 +1,8 @@
-//
-// Created by moonseekr on 4/15/2024.
-//
+
 
 #include "JouerSound.h"
+
+// Does literally nothing for the most part
 
 JouerSound::JouerSound(const juce::String &name, juce::AudioFormatReader &source, const juce::BigInteger &midiNotes,
                        int midiNoteForNormalPitch, double attackTimeSecs, double releaseTimeSecs, double maxSampleLengthSeconds):

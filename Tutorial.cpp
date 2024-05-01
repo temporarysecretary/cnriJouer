@@ -5,6 +5,8 @@
 #include "Tutorial.h"
 
 Tutorial::Tutorial(){
+
+    // make the button
     out.setButtonText("X");
     out.onClick = [this]{
         setVisible(false);

@@ -1,10 +1,4 @@
-//
-// Created by moonseekr on 2/22/2024.
-//
 
-//
-// Created by moonseekr on 2/22/2024.
-//
 
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"

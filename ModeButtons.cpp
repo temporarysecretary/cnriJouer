@@ -1,21 +1,21 @@
-//
-// Created by moonseekr on 2/29/2024.
-//
 
 #include "ModeButtons.h"
 #include "BinaryData.h"
 
 ModeButtons::ModeButtons(AudioPluginAudioProcessor& g):processorRef(g){
+    // Initializes properties
     int width = (60) * BUTTON_COUNT;
     juce::Rectangle<int> modeButtonsBounds = juce::Rectangle<int>(0,0, width,60);
     setBounds(modeButtonsBounds);
 
+    // Makes each button visible and sets their behavior to toggle
     for(auto &s:buttons){
         addAndMakeVisible(&s);
         s.setToggleable(true);
         s.setClickingTogglesState(true);
     }
 
+    // Attachment to value tree
     mode1Attch = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.getApvts(), "MODE1", buttons[0]);
     mode2Attch = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.getApvts(), "MODE2", buttons[1]);
 
@@ -30,6 +30,7 @@ void ModeButtons::paint(juce::Graphics &g){
 }
 
 void ModeButtons::resized(){
+    // Dynamically splits the buttons area and separates each button.
     auto holdingArea = getLocalBounds();
     const auto widthOfSlider = static_cast<int>(holdingArea.getWidth()/BUTTON_COUNT);
     for(auto &s:buttons){
@@ -38,6 +39,7 @@ void ModeButtons::resized(){
     }
 }
 
+// Initializes button images from binary data in icons folder
 void ModeButtons::initializeButtons(){
     std::array<const char*,BUTTON_COUNT> imageData = {
             BinaryData::_0_png, BinaryData::_1_png, BinaryData::_2_png, BinaryData::_3_png, BinaryData::_4_png
